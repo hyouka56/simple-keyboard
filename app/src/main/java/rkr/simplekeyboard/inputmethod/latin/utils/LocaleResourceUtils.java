@@ -164,11 +164,12 @@ public final class LocaleResourceUtils {
             exceptionalNameResId = null;
         }
 
-        if (exceptionalNameResId != null) {
+        // A missing exception string resolves to resource ID 0. Fall back to the
+        // platform locale name instead of calling getString(0) and crashing Settings.
+        if (exceptionalNameResId != null && exceptionalNameResId != 0) {
             return sResources.getString(exceptionalNameResId);
-        } else {
-            return LocaleUtils.constructLocaleFromString(localeString)
-                    .getDisplayName(displayLocale);
         }
+        return LocaleUtils.constructLocaleFromString(localeString)
+                .getDisplayName(displayLocale);
     }
 }
