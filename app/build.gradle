@@ -1,21 +1,26 @@
 apply plugin: 'com.android.application'
 
 android {
+    namespace = 'rkr.simplekeyboard.inputmethod'
+    compileSdk = 36
+
     defaultConfig {
-        applicationId "com.hyouka56.blackofflinekeyboard"
-        compileSdk 36
-        minSdkVersion 24
-        targetSdkVersion 36
-        versionCode 148
-        versionName "6.7"
+        applicationId = 'com.hyouka56.blackofflinekeyboard'
+        minSdk = 24
+        targetSdk = 36
+        versionCode = 148
+        versionName = '6.7'
     }
+
     buildTypes {
         release {
-            minifyEnabled true
+            minifyEnabled = true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    namespace 'rkr.simplekeyboard.inputmethod'
+
+    // This module contains Java sources only; avoid creating Kotlin compiler tasks.
+    enableKotlin = false
 
     dependenciesInfo {
         includeInApk = false
