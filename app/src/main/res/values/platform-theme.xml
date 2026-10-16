@@ -19,6 +19,13 @@
 -->
 
 <resources>
-    <style name="platformSettingsTheme" parent="@android:style/Theme.Material.Light.LightStatusBar" />
-    <style name="platformDialogTheme" parent="@android:style/Theme.DeviceDefault.Light.Dialog" />
+    <style name="platformSettingsTheme" parent="@android:style/Theme.Material">
+        <item name="android:colorAccent">#80CBC4</item>
+        <item name="android:statusBarColor">#000000</item>
+        <item name="android:navigationBarColor">#000000</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+    <style name="platformDialogTheme" parent="@android:style/Theme.Material.Dialog">
+        <item name="android:colorAccent">#80CBC4</item>
+    </style>
 </resources>
