@@ -24,7 +24,7 @@ jobs:
           java-version: '21'
           cache: gradle
 
-      - name: Install Android SDK 37
+      - name: Install Android SDK 36
         shell: bash
         run: |
           set -euo pipefail
@@ -79,8 +79,13 @@ jobs:
           print('Source privacy, black background, and Arabic/English checks passed.')
           PY
 
+      - name: Set up Gradle 9.6.0
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.6.0'
+
       - name: Build debug APK
-        run: ./gradlew --no-daemon --stacktrace assembleDebug
+        run: gradle --no-daemon --stacktrace assembleDebug
 
       - name: Verify final APK permissions
         shell: bash
