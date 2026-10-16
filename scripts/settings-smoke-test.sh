@@ -5,13 +5,19 @@ PKG=com.hyouka56.blackofflinekeyboard
 COMPONENT="$PKG/rkr.simplekeyboard.inputmethod.latin.settings.SettingsActivity"
 IME_COMPONENT="$PKG/rkr.simplekeyboard.inputmethod.latin.LatinIME"
 mkdir -p test-results
-adb install -r app/build/outputs/apk/debug/app-debug.apk
+
+# Never let a broken ADB/emulator transport hang this job indefinitely.
+ADB_TIMEOUT_SECONDS="${ADB_TIMEOUT_SECONDS:-15}"
+adb_safe() {
+  timeout "${ADB_TIMEOUT_SECONDS}s" adb "$@"
+}
+adb_safe install -r app/build/outputs/apk/debug/app-debug.apk
 
 # PackageManager may take a short time to register the freshly installed IME.
 # Retry in a bounded loop and save diagnostics if registration never completes.
 IME_ENABLED=0
 for attempt in {1..10}; do
-  if adb shell ime enable "$IME_COMPONENT" >"test-results/ime-enable.log" 2>&1; then
+  if adb_safe shell ime enable "$IME_COMPONENT" >"test-results/ime-enable.log" 2>&1; then
     IME_ENABLED=1
     break
   fi
@@ -19,8 +25,8 @@ for attempt in {1..10}; do
   sleep 1
 done
 if [[ "$IME_ENABLED" != "1" ]]; then
-  adb shell ime list -a >"test-results/ime-list.txt" 2>&1 || true
-  adb shell dumpsys package "$PKG" >"test-results/package-dump.txt" 2>&1 || true
+  adb_safe shell ime list -a >"test-results/ime-list.txt" 2>&1 || true
+  adb_safe shell dumpsys package "$PKG" >"test-results/package-dump.txt" 2>&1 || true
   cat test-results/ime-enable.log >&2 || true
   echo "Simple Keyboard IME did not become available after installation." >&2
   exit 1
@@ -28,7 +34,7 @@ fi
 
 IME_SELECTED=0
 for attempt in {1..5}; do
-  if adb shell ime set "$IME_COMPONENT" >"test-results/ime-set.log" 2>&1; then
+  if adb_safe shell ime set "$IME_COMPONENT" >"test-results/ime-set.log" 2>&1; then
     IME_SELECTED=1
     break
   fi
@@ -36,39 +42,39 @@ for attempt in {1..5}; do
   sleep 1
 done
 if [[ "$IME_SELECTED" != "1" ]]; then
-  adb shell ime list -a >"test-results/ime-list.txt" 2>&1 || true
-  adb shell dumpsys package "$PKG" >"test-results/package-dump.txt" 2>&1 || true
+  adb_safe shell ime list -a >"test-results/ime-list.txt" 2>&1 || true
+  adb_safe shell dumpsys package "$PKG" >"test-results/package-dump.txt" 2>&1 || true
   cat test-results/ime-set.log >&2 || true
   echo "Simple Keyboard IME could not be selected as default." >&2
   exit 1
 fi
-ACTIVE_IME="$(adb shell settings get secure default_input_method | tr -d '')"
+ACTIVE_IME="$(adb_safe shell settings get secure default_input_method | tr -d '')"
 if [[ "$ACTIVE_IME" != "$IME_COMPONENT" ]]; then
   echo "Failed to select Simple Keyboard. Active IME: $ACTIVE_IME" >&2
-  adb shell ime list -a >"test-results/ime-list.txt" 2>&1 || true
+  adb_safe shell ime list -a >"test-results/ime-list.txt" 2>&1 || true
   exit 1
 fi
 
 test_screen() {
   local name="$1"
   local fragment="$2"
-  adb shell am force-stop "$PKG" || true
-  adb logcat -c
+  adb_safe shell am force-stop "$PKG" || true
+  adb_safe logcat -c
   if [[ "$fragment" == "default" ]]; then
-    adb shell am start -W -n "$COMPONENT"
+    adb_safe shell am start -W -n "$COMPONENT"
   else
-    adb shell am start -W -n "$COMPONENT" --es :android:show_fragment "$fragment"
+    adb_safe shell am start -W -n "$COMPONENT" --es :android:show_fragment "$fragment"
   fi
   sleep 2
-  adb logcat -d -b crash -v time > "test-results/${name}-crash.log" || true
-  adb logcat -d -s AndroidRuntime:E -v time >> "test-results/${name}-crash.log" || true
+  adb_safe logcat -d -b crash -v time > "test-results/${name}-crash.log" || true
+  adb_safe logcat -d -s AndroidRuntime:E -v time >> "test-results/${name}-crash.log" || true
   if grep -Eq 'FATAL EXCEPTION|Unable to start activity|Process: com\\.hyouka56\\.blackofflinekeyboard' "test-results/${name}-crash.log"; then
-    adb logcat -d -v time > "test-results/${name}-full-logcat.txt" || true
+    adb_safe logcat -d -v time > "test-results/${name}-full-logcat.txt" || true
     echo "Crash detected while opening ${name}; logcat saved." >&2
     exit 1
   fi
-  adb shell uiautomator dump "/sdcard/${name}-window.xml" >/dev/null
-  adb pull "/sdcard/${name}-window.xml" "test-results/${name}-window.xml" >/dev/null
+  adb_safe shell uiautomator dump "/sdcard/${name}-window.xml" >/dev/null
+  adb_safe pull "/sdcard/${name}-window.xml" "test-results/${name}-window.xml" >/dev/null
   if grep -Fq 'Simple Keyboard is not enabled' "test-results/${name}-window.xml"; then
     echo "Settings gate is still visible during ${name}; actual settings were not tested." >&2
     exit 1
