@@ -7,12 +7,45 @@ IME_COMPONENT="$PKG/rkr.simplekeyboard.inputmethod.latin.LatinIME"
 mkdir -p test-results
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 
-# Enable/select the declared service before launching settings.
-adb shell ime enable "$IME_COMPONENT"
-adb shell ime set "$IME_COMPONENT"
-ACTIVE_IME="$(adb shell settings get secure default_input_method | tr -d '\r')"
+# PackageManager may take a short time to register the freshly installed IME.
+# Retry in a bounded loop and save diagnostics if registration never completes.
+IME_ENABLED=0
+for attempt in {1..10}; do
+  if adb shell ime enable "$IME_COMPONENT" >"test-results/ime-enable.log" 2>&1; then
+    IME_ENABLED=1
+    break
+  fi
+  echo "Waiting for IME registration after install (${attempt}/10)..." >&2
+  sleep 1
+done
+if [[ "$IME_ENABLED" != "1" ]]; then
+  adb shell ime list -a >"test-results/ime-list.txt" 2>&1 || true
+  adb shell dumpsys package "$PKG" >"test-results/package-dump.txt" 2>&1 || true
+  cat test-results/ime-enable.log >&2 || true
+  echo "Simple Keyboard IME did not become available after installation." >&2
+  exit 1
+fi
+
+IME_SELECTED=0
+for attempt in {1..5}; do
+  if adb shell ime set "$IME_COMPONENT" >"test-results/ime-set.log" 2>&1; then
+    IME_SELECTED=1
+    break
+  fi
+  echo "Waiting for IME selection (${attempt}/5)..." >&2
+  sleep 1
+done
+if [[ "$IME_SELECTED" != "1" ]]; then
+  adb shell ime list -a >"test-results/ime-list.txt" 2>&1 || true
+  adb shell dumpsys package "$PKG" >"test-results/package-dump.txt" 2>&1 || true
+  cat test-results/ime-set.log >&2 || true
+  echo "Simple Keyboard IME could not be selected as default." >&2
+  exit 1
+fi
+ACTIVE_IME="$(adb shell settings get secure default_input_method | tr -d '')"
 if [[ "$ACTIVE_IME" != "$IME_COMPONENT" ]]; then
   echo "Failed to select Simple Keyboard. Active IME: $ACTIVE_IME" >&2
+  adb shell ime list -a >"test-results/ime-list.txt" 2>&1 || true
   exit 1
 fi
 
