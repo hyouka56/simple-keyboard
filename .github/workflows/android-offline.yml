@@ -33,7 +33,9 @@ jobs:
             SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -path '*/bin/sdkmanager' -type f | head -n 1)"
           fi
           test -x "$SDKMANAGER"
+          set +o pipefail
           yes | "$SDKMANAGER" --licenses >/dev/null
+          set -o pipefail
           "$SDKMANAGER" "platforms;android-37" "build-tools;37.0.0"
 
       - name: Verify source privacy and language constraints
