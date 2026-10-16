@@ -20,36 +20,44 @@
         android:key="auto_cap"
         android:title="@string/auto_cap"
         android:summary="@string/auto_cap_summary"
-        android:defaultValue="true"
-        android:persistent="true" />
+        android:defaultValue="false"
+        android:persistent="true"
+        android:enabled="false" />
     <SwitchPreference
         android:key="pref_show_number_row"
         android:title="@string/show_number_row"
-        android:defaultValue="false" />
+        android:defaultValue="false"
+        android:enabled="false" />
     <SwitchPreference
         android:key="pref_show_special_chars"
         android:title="@string/show_special_chars"
-        android:defaultValue="true" />
+        android:defaultValue="false"
+        android:enabled="false" />
     <SwitchPreference
         android:key="pref_show_language_switch_key"
         android:title="@string/show_language_switch_key"
-        android:defaultValue="true" />
+        android:defaultValue="true"
+        android:enabled="true" />
     <SwitchPreference
         android:key="pref_use_on_screen"
         android:title="@string/pref_use_on_screen"
         android:summary="@string/pref_use_on_screen_summary"
-        android:defaultValue="false" />
+        android:defaultValue="false"
+        android:enabled="false" />
     <SwitchPreference
         android:key="pref_enable_ime_switch"
         android:title="@string/pref_enable_ime_switch"
         android:dependency="pref_show_language_switch_key"
-        android:defaultValue="false" />
+        android:defaultValue="false"
+        android:enabled="false" />
     <SwitchPreference
         android:key="pref_space_swipe"
         android:title="@string/space_swipe"
-        android:defaultValue="false" />
+        android:defaultValue="false"
+        android:enabled="false" />
     <SwitchPreference
         android:key="pref_delete_swipe"
         android:title="@string/delete_swipe"
-        android:defaultValue="false" />
+        android:defaultValue="false"
+        android:enabled="false" />
 </PreferenceScreen>

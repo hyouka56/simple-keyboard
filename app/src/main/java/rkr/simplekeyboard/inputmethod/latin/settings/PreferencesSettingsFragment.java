@@ -44,6 +44,18 @@ public final class PreferencesSettingsFragment extends SubScreenFragment {
         super.onCreate(icicle);
         addPreferencesFromResource(R.xml.prefs_screen_preferences);
 
+        // This build intentionally exposes only the language-switch-key setting.
+        // Clear previously saved values as well as disabling their controls in XML.
+        getSharedPreferences().edit()
+                .putBoolean(Settings.PREF_AUTO_CAP, false)
+                .putBoolean(Settings.PREF_SHOW_NUMBER_ROW, false)
+                .putBoolean(Settings.PREF_SHOW_SPECIAL_CHARS, false)
+                .putBoolean(Settings.PREF_USE_ON_SCREEN, false)
+                .putBoolean(Settings.PREF_ENABLE_IME_SWITCH, false)
+                .putBoolean(Settings.PREF_SPACE_SWIPE, false)
+                .putBoolean(Settings.PREF_DELETE_SWIPE, false)
+                .apply();
+
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.BAKLAVA) {
             removePreference(Settings.PREF_USE_ON_SCREEN);
         }

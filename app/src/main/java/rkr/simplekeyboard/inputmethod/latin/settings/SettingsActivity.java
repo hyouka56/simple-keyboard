@@ -96,19 +96,31 @@ public class SettingsActivity extends PreferenceActivity {
         super.onCreate(savedState);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            final View container = (View) getListView().getParent().getParent();
-            // com.android.internal.R.id.prefs_container in
-            // https://android.googlesource.com/platform/frameworks/base/+/refs/heads/main/core/res/res/layout/preference_list_content.xml
-            container.setOnApplyWindowInsetsListener((view, windowInsets) -> {
-                android.graphics.Insets insets = windowInsets.getInsets(WindowInsets.Type.systemBars());
-                ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
-                mlp.topMargin = insets.top;
-                mlp.leftMargin = insets.left;
-                mlp.bottomMargin = insets.bottom;
-                mlp.rightMargin = insets.right;
-                view.setLayoutParams(mlp);
-                return WindowInsets.CONSUMED;
-            });
+            // OEMs do not all use the same PreferenceActivity view hierarchy. Guard each
+            // parent lookup so opening Settings cannot crash when the private layout differs.
+            final View listView = getListView();
+            if (listView != null && listView.getParent() instanceof View) {
+                final View firstParent = (View) listView.getParent();
+                if (firstParent.getParent() instanceof View) {
+                    final View container = (View) firstParent.getParent();
+                    container.setOnApplyWindowInsetsListener((view, windowInsets) -> {
+                        final ViewGroup.LayoutParams params = view.getLayoutParams();
+                        if (params instanceof ViewGroup.MarginLayoutParams) {
+                            final android.graphics.Insets insets = windowInsets.getInsets(
+                                    WindowInsets.Type.systemBars());
+                            final ViewGroup.MarginLayoutParams margins =
+                                    (ViewGroup.MarginLayoutParams) params;
+                            margins.topMargin = insets.top;
+                            margins.leftMargin = insets.left;
+                            margins.bottomMargin = insets.bottom;
+                            margins.rightMargin = insets.right;
+                            view.setLayoutParams(margins);
+                            return WindowInsets.CONSUMED;
+                        }
+                        return windowInsets;
+                    });
+                }
+            }
         }
 
         final ActionBar actionBar = getActionBar();

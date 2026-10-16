@@ -20,6 +20,7 @@ package rkr.simplekeyboard.inputmethod.latin.settings;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
@@ -38,25 +39,54 @@ public final class SettingsFragment extends InputMethodSettingsFragment {
         super.onCreate(icicle);
         setHasOptionsMenu(true);
         addPreferencesFromResource(R.xml.prefs);
+
+        // Keep only language switching configurable; reset legacy values from older builds.
+        final SharedPreferences prefs =
+                rkr.simplekeyboard.inputmethod.compat.PreferenceManagerCompat
+                        .getDeviceSharedPreferences(getActivity());
+        prefs.edit()
+                .putBoolean(Settings.PREF_AUTO_CAP, false)
+                .putBoolean(Settings.PREF_SHOW_NUMBER_ROW, false)
+                .putBoolean(Settings.PREF_SHOW_SPECIAL_CHARS, false)
+                .putBoolean(Settings.PREF_USE_ON_SCREEN, false)
+                .putBoolean(Settings.PREF_ENABLE_IME_SWITCH, false)
+                .putBoolean(Settings.PREF_SPACE_SWIPE, false)
+                .putBoolean(Settings.PREF_DELETE_SWIPE, false)
+                .putBoolean(Settings.PREF_SOUND_ON, false)
+                .putBoolean(Settings.PREF_POPUP_ON, false)
+                .putFloat(Settings.PREF_KEYPRESS_SOUND_VOLUME,
+                        Settings.readDefaultKeypressSoundVolume())
+                .putInt(Settings.PREF_KEY_LONGPRESS_TIMEOUT,
+                        Settings.readDefaultKeyLongpressTimeout(getResources()))
+                .apply();
+
         final PreferenceScreen preferenceScreen = getPreferenceScreen();
-        preferenceScreen.setTitle(
-                ApplicationUtils.getActivityTitleResId(getActivity(), SettingsActivity.class));
+        if (preferenceScreen != null) {
+            preferenceScreen.setTitle(
+                    ApplicationUtils.getActivityTitleResId(getActivity(), SettingsActivity.class));
+        }
         final Resources res = getResources();
 
-        findPreference("privacy_policy").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                openUrl(res.getString(R.string.privacy_policy_url));
-                return true;
-            }
-        });
-        findPreference("license").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                openUrl(res.getString(R.string.license_url));
-                return true;
-            }
-        });
+        final Preference privacyPreference = findPreference("privacy_policy");
+        if (privacyPreference != null) {
+            privacyPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    openUrl(res.getString(R.string.privacy_policy_url));
+                    return true;
+                }
+            });
+        }
+        final Preference licensePreference = findPreference("license");
+        if (licensePreference != null) {
+            licensePreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    openUrl(res.getString(R.string.license_url));
+                    return true;
+                }
+            });
+        }
     }
 
     private void openUrl(String uri) {
