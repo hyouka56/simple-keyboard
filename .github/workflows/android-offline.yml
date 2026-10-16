@@ -12,7 +12,7 @@ permissions:
 jobs:
   android:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - name: Check out source
         uses: actions/checkout@v7
@@ -137,9 +137,10 @@ jobs:
           profile: pixel_2
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
           disable-animations: true
-          emulator-boot-timeout: 600
+          emulator-boot-timeout: 1200
           script: |
-            set -euo pipefail
+            # emulator-runner executes scripts via /usr/bin/sh (dash), which has no pipefail.
+            set -eu
             PKG=com.hyouka56.blackofflinekeyboard
             COMPONENT="$PKG/rkr.simplekeyboard.inputmethod.latin.settings.SettingsActivity"
             mkdir -p test-results
