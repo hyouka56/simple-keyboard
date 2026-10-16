@@ -21,6 +21,7 @@ package rkr.simplekeyboard.inputmethod.latin.settings;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.preference.Preference;
 
 import rkr.simplekeyboard.inputmethod.R;
 import rkr.simplekeyboard.inputmethod.keyboard.KeyboardTheme;
@@ -34,6 +35,7 @@ public final class AppearanceSettingsFragment extends SubScreenFragment {
         super.onCreate(icicle);
         addPreferencesFromResource(R.xml.prefs_screen_appearance);
 
+        setupKeyboardColorSettings();
         setupKeyboardHeightSettings();
         setupBottomOffsetPortraitSettings();
     }
@@ -50,8 +52,18 @@ public final class AppearanceSettingsFragment extends SubScreenFragment {
     public void onSharedPreferenceChanged(final SharedPreferences prefs, final String key) {
         if (KeyboardTheme.KEYBOARD_THEME_KEY.equals(key)) {
             ThemeSettingsFragment.updateKeyboardThemeSummary(findPreference(Settings.SCREEN_THEME));
-
+            final KeyboardTheme theme = KeyboardTheme.getKeyboardTheme(getSharedPreferences());
+            setPreferenceEnabled(Settings.PREF_KEYBOARD_COLOR, theme.mCustomColorSupport);
         }
+    }
+
+    private void setupKeyboardColorSettings() {
+        final Preference colorPreference = findPreference(Settings.PREF_KEYBOARD_COLOR);
+        if (colorPreference == null) {
+            return;
+        }
+        final KeyboardTheme theme = KeyboardTheme.getKeyboardTheme(getSharedPreferences());
+        colorPreference.setEnabled(theme.mCustomColorSupport);
     }
 
     private void setupKeyboardHeightSettings() {

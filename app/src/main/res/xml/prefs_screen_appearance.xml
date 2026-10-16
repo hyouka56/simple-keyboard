@@ -23,6 +23,9 @@
         android:fragment="rkr.simplekeyboard.inputmethod.latin.settings.ThemeSettingsFragment"
         android:key="screen_theme"
         android:title="@string/settings_screen_theme" />
+    <rkr.simplekeyboard.inputmethod.latin.settings.ColorDialogPreference
+        android:key="pref_keyboard_color"
+        android:title="@string/keyboard_color" />
     <rkr.simplekeyboard.inputmethod.latin.settings.SeekBarDialogPreference
         android:key="pref_keyboard_height"
         android:title="@string/prefs_keyboard_height_settings"

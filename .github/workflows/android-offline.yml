@@ -73,7 +73,12 @@ jobs:
               for name in required:
                   assert colors.get(name) == '#000000', f'{file}: {name} must be #000000'
 
-          assert 'pref_keyboard_color' not in Path('app/src/main/res/xml/prefs_screen_appearance.xml').read_text(), 'Custom keyboard colour UI must stay removed'
+          appearance_xml = Path('app/src/main/res/xml/prefs_screen_appearance.xml').read_text()
+          assert 'android:key="pref_keyboard_color"' in appearance_xml, 'Reference keyboard colour dialog must remain available'
+          settings_source = Path('app/src/main/java/rkr/simplekeyboard/inputmethod/latin/settings/Settings.java').read_text()
+          assert 'return prefs.getInt(PREF_KEYBOARD_COLOR, readKeyboardDefaultColor(context));' in settings_source, 'Colour picker value must persist and use the theme default'
+          keyboard_theme_source = Path('app/src/main/java/rkr/simplekeyboard/inputmethod/keyboard/KeyboardTheme.java').read_text()
+          assert 'new KeyboardTheme(THEME_ID_SYSTEM, "LXXSystem", R.style.KeyboardTheme_LXX_System, true)' in keyboard_theme_source, 'Default theme should allow the code-based black colour picker'
 
           keypress_root = ET.parse('app/src/main/res/xml/prefs_screen_key_press.xml').getroot()
           keypress_prefs = {e.attrib.get('{http://schemas.android.com/apk/res/android}key'): e for e in keypress_root}
