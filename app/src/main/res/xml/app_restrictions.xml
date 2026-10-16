@@ -52,11 +52,6 @@
         android:defaultValue="false" />
     <!-- settings_screen_key_press -->
     <restriction
-        android:key="vibrate_on"
-        android:title="@string/vibrate_on_keypress"
-        android:restrictionType="bool"
-        android:defaultValue="true" />
-    <restriction
         android:key="sound_on"
         android:title="@string/sound_on_keypress"
         android:restrictionType="bool"
@@ -84,12 +79,6 @@
         android:entries="@array/keyboard_theme_names"
         android:entryValues="@array/keyboard_theme_ids_string"
         android:defaultValue="5" />
-    <restriction
-        android:key="pref_keyboard_color"
-        android:title="@string/keyboard_color"
-        android:restrictionType="string"
-        android:description="@string/pref_keyboard_color_description"
-        android:defaultValue="" />
     <restriction
         android:key="pref_keyboard_height"
         android:title="@string/prefs_keyboard_height_settings"

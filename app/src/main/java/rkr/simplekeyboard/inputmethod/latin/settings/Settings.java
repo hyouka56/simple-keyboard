@@ -313,7 +313,8 @@ public final class Settings extends BroadcastReceiver implements SharedPreferenc
     }
 
     public static int readKeyboardColor(final SharedPreferences prefs, final Context context) {
-        return prefs.getInt(PREF_KEYBOARD_COLOR, readKeyboardDefaultColor(context));
+        // Ignore legacy custom colours so every keyboard theme stays pure black.
+        return Color.BLACK;
     }
 
     public static void removeKeyboardColor(final SharedPreferences prefs) {

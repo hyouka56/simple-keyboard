@@ -14,8 +14,10 @@ Features:
 - Number row
 - Swipe space to move pointer
 - Delete swipe
-- Custom theme colors
-- Minimal permissions (only Vibrate)
+- Pure black keyboard background
+- Arabic and English input only
+- Offline operation; no Internet permission
+- No vibration permission or vibration feature
 - Ads-free
 
 Feature it doesn't have and probably will never have:
@@ -38,3 +40,7 @@ Feature it doesn't have and probably will never have:
 Licensed under Apache License Version 2
 
 This keyboard is based on AOSP LatinIME keyboard. You can get the original source code in https://android.googlesource.com/platform/packages/inputmethods/LatinIME/
+
+## Privacy
+
+This fork keeps keyboard input on the device. The Android app manifest does not request Internet access, the app module has no runtime dependencies, and Android backup is disabled. The keyboard supports Arabic and English input only. Downloading or building the source may use network access outside the installed keyboard app.

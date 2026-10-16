@@ -129,84 +129,8 @@ public final class SubtypeLocaleUtils {
     private static final String[] sSupportedLocales = new String[] {
             LOCALE_ENGLISH_UNITED_STATES,
             LOCALE_ENGLISH_GREAT_BRITAIN,
-            LOCALE_AFRIKAANS,
-            LOCALE_ARABIC,
-            LOCALE_AZERBAIJANI_AZERBAIJAN,
-            LOCALE_BELARUSIAN_BELARUS,
-            LOCALE_BULGARIAN,
-            LOCALE_BENGALI_BANGLADESH,
-            LOCALE_BENGALI_INDIA,
-            LOCALE_CATALAN,
-            LOCALE_CZECH,
-            LOCALE_DANISH,
-            LOCALE_GERMAN,
-            LOCALE_GERMAN_SWITZERLAND,
-            LOCALE_GREEK,
             LOCALE_ENGLISH_INDIA,
-            LOCALE_ESPERANTO,
-            LOCALE_SPANISH,
-            LOCALE_SPANISH_UNITED_STATES,
-            LOCALE_SPANISH_LATIN_AMERICA,
-            LOCALE_ESTONIAN_ESTONIA,
-            LOCALE_BASQUE_SPAIN,
-            LOCALE_PERSIAN,
-            LOCALE_FINNISH,
-            LOCALE_FRENCH,
-            LOCALE_FRENCH_CANADA,
-            LOCALE_FRENCH_SWITZERLAND,
-            LOCALE_GALICIAN_SPAIN,
-            LOCALE_HINDI,
-            LOCALE_CROATIAN,
-            LOCALE_HUNGARIAN,
-            LOCALE_ARMENIAN_ARMENIA,
-            LOCALE_INDONESIAN_1,
-            LOCALE_INDONESIAN_2,
-            LOCALE_ICELANDIC,
-            LOCALE_ITALIAN,
-            LOCALE_ITALIAN_SWITZERLAND,
-            LOCALE_HEBREW_1,
-            LOCALE_HEBREW_2,
-            LOCALE_GEORGIAN_GEORGIA,
-            LOCALE_KAZAKH,
-            LOCALE_KHMER_CAMBODIA,
-            LOCALE_KANNADA_INDIA,
-            LOCALE_KYRGYZ,
-            LOCALE_LAO_LAOS,
-            LOCALE_LITHUANIAN,
-            LOCALE_LATVIAN,
-            LOCALE_MACEDONIAN,
-            LOCALE_MALAYALAM_INDIA,
-            LOCALE_MONGOLIAN_MONGOLIA,
-            LOCALE_MARATHI_INDIA,
-            LOCALE_MALAY_MALAYSIA,
-            LOCALE_NORWEGIAN_BOKMAL,
-            LOCALE_NEPALI_NEPAL,
-            LOCALE_DUTCH,
-            LOCALE_DUTCH_BELGIUM,
-            LOCALE_POLISH,
-            LOCALE_PORTUGUESE_BRAZIL,
-            LOCALE_PORTUGUESE_PORTUGAL,
-            LOCALE_ROMANIAN,
-            LOCALE_RUSSIAN,
-            LOCALE_SAKHA,
-            LOCALE_SLOVAK,
-            LOCALE_SLOVENIAN,
-            LOCALE_SERBIAN,
-            LOCALE_SERBIAN_LATIN,
-            LOCALE_SWEDISH,
-            LOCALE_SWAHILI,
-            LOCALE_TAMIL_INDIA,
-            LOCALE_TAMIL_SINGAPORE,
-            LOCALE_TELUGU_INDIA,
-            LOCALE_TAJIK,
-            LOCALE_THAI,
-            LOCALE_TAGALOG,
-            LOCALE_TURKISH,
-            LOCALE_UKRAINIAN,
-            LOCALE_URDU,
-            LOCALE_UZBEK_UZBEKISTAN,
-            LOCALE_VIETNAMESE,
-            LOCALE_ZULU
+            LOCALE_ARABIC
     };
 
     /**
@@ -268,7 +192,15 @@ public final class SubtypeLocaleUtils {
      * @param resources the resources to use.
      * @return the list of subtypes for the specified locale.
      */
+    private static boolean isAllowedLocale(final String locale) {
+        return locale != null && (locale.equals("ar") || locale.startsWith("ar_")
+                || locale.equals("en") || locale.startsWith("en_"));
+    }
+
     public static List<Subtype> getSubtypes(final String locale, final Resources resources) {
+        if (!isAllowedLocale(locale)) {
+            return new ArrayList<>();
+        }
         return new SubtypeBuilder(locale, true, resources).getSubtypes();
     }
 
@@ -279,7 +211,7 @@ public final class SubtypeLocaleUtils {
      * @return the default subtype for the specified locale or null if the locale isn't supported.
      */
     public static Subtype getDefaultSubtype(final String locale, final Resources resources) {
-        final List<Subtype> subtypes = new SubtypeBuilder(locale, true, resources).getSubtypes();
+        final List<Subtype> subtypes = getSubtypes(locale, resources);
         return subtypes.size() == 0 ? null : subtypes.get(0);
     }
 
@@ -292,6 +224,9 @@ public final class SubtypeLocaleUtils {
      */
     public static Subtype getSubtype(final String locale, final String layoutSet,
                                      final Resources resources) {
+        if (!isAllowedLocale(locale)) {
+            return null;
+        }
         final List<Subtype> subtypes =
                 new SubtypeBuilder(locale, layoutSet, resources).getSubtypes();
         return subtypes.size() == 0 ? null : subtypes.get(0);
