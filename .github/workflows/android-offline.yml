@@ -36,7 +36,7 @@ jobs:
           set +o pipefail
           yes | "$SDKMANAGER" --licenses >/dev/null
           set -o pipefail
-          "$SDKMANAGER" "platforms;android-37" "build-tools;37.0.0"
+          "$SDKMANAGER" "platforms;android-36" "build-tools;36.0.0"
 
       - name: Verify source privacy and language constraints
         shell: bash
@@ -86,7 +86,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          AAPT="$ANDROID_HOME/build-tools/37.0.0/aapt"
+          AAPT="$ANDROID_HOME/build-tools/36.0.0/aapt"
           "$AAPT" dump permissions app/build/outputs/apk/debug/app-debug.apk | tee apk-permissions.txt
           if grep -Eq 'android\.permission\.(INTERNET|VIBRATE)' apk-permissions.txt; then
             echo 'Forbidden Internet or vibration permission found in the built APK.' >&2

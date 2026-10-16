@@ -3,9 +3,9 @@ apply plugin: 'com.android.application'
 android {
     defaultConfig {
         applicationId "com.hyouka56.blackofflinekeyboard"
-        compileSdk 37
+        compileSdk 36
         minSdkVersion 24
-        targetSdkVersion 37
+        targetSdkVersion 36
         versionCode 148
         versionName "6.7"
     }
