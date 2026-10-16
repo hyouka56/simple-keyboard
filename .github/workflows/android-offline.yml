@@ -1,0 +1,99 @@
+name: Android build and privacy checks
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Set up Java
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+
+      - name: Install Android SDK 37
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then
+            SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -path '*/bin/sdkmanager' -type f | head -n 1)"
+          fi
+          test -x "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses >/dev/null
+          "$SDKMANAGER" "platforms;android-37" "build-tools;37.0.0"
+
+      - name: Verify source privacy and language constraints
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          import xml.etree.ElementTree as ET
+
+          manifest = Path('app/src/main/AndroidManifest.xml').read_text()
+          assert 'android.permission.INTERNET' not in manifest, 'Internet permission found'
+          assert 'android.permission.VIBRATE' not in manifest, 'Vibration permission found'
+          assert 'android:allowBackup="false"' in manifest, 'Backups must remain disabled'
+
+          locale_source = Path('app/src/main/java/rkr/simplekeyboard/inputmethod/latin/utils/SubtypeLocaleUtils.java').read_text()
+          match = re.search(r'sSupportedLocales\s*=\s*new String\[\]\s*\{(.*?)\};', locale_source, re.S)
+          assert match, 'Could not locate supported locale allowlist'
+          locales = re.findall(r'LOCALE_[A-Z0-9_]+', match.group(1))
+          assert locales == [
+              'LOCALE_ENGLISH_UNITED_STATES',
+              'LOCALE_ENGLISH_GREAT_BRITAIN',
+              'LOCALE_ENGLISH_INDIA',
+              'LOCALE_ARABIC',
+          ], f'Unexpected input language allowlist: {locales}'
+          assert 'if (!isAllowedLocale(locale))' in locale_source, 'Locale guard missing'
+
+          for file in ('app/src/main/res/values/colors.xml', 'app/src/main/res/values-night/colors.xml'):
+              root = ET.parse(file).getroot()
+              colors = {e.attrib.get('name'): (e.text or '').strip().lower() for e in root.findall('color')}
+              required = ['background_lxx_system', 'background_secondary_lxx_system']
+              if file.endswith('/values/colors.xml'):
+                  required += ['background_lxx_light', 'background_secondary_lxx_light', 'background_lxx_dark', 'background_secondary_lxx_dark']
+              for name in required:
+                  assert colors.get(name) == '#000000', f'{file}: {name} must be #000000'
+
+          assert 'pref_keyboard_color' not in Path('app/src/main/res/xml/prefs_screen_appearance.xml').read_text(), 'Custom keyboard colour UI must stay removed'
+          manager = Path('app/src/main/java/rkr/simplekeyboard/inputmethod/latin/AudioAndHapticFeedbackManager.java').read_text()
+          assert 'mVibrator' not in manager and 'VibrationEffect' not in manager, 'Vibration implementation found'
+          print('Source privacy, black background, and Arabic/English checks passed.')
+          PY
+
+      - name: Build debug APK
+        run: ./gradlew --no-daemon --stacktrace assembleDebug
+
+      - name: Verify final APK permissions
+        shell: bash
+        run: |
+          set -euo pipefail
+          AAPT="$ANDROID_HOME/build-tools/37.0.0/aapt"
+          "$AAPT" dump permissions app/build/outputs/apk/debug/app-debug.apk | tee apk-permissions.txt
+          if grep -Eq 'android\.permission\.(INTERNET|VIBRATE)' apk-permissions.txt; then
+            echo 'Forbidden Internet or vibration permission found in the built APK.' >&2
+            exit 1
+          fi
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: black-offline-keyboard-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
