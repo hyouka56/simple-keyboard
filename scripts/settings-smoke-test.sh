@@ -3,14 +3,11 @@ set -euo pipefail
 
 PKG=com.hyouka56.blackofflinekeyboard
 COMPONENT="$PKG/rkr.simplekeyboard.inputmethod.latin.settings.SettingsActivity"
+IME_COMPONENT="$PKG/rkr.simplekeyboard.inputmethod.latin.LatinIME"
 mkdir -p test-results
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 
-# Enable and select the IME first. Otherwise SettingsActivity intentionally shows
-# an "IME is not enabled" dialog and a smoke test can pass without seeing settings.
-# This is the fully qualified service declared by AndroidManifest.xml. Do not
-# discover it with `ime list -s` before enabling it: that output omits disabled IMEs.
-IME_COMPONENT="$PKG/rkr.simplekeyboard.inputmethod.latin.LatinIME"
+# Enable/select the declared service before launching settings.
 adb shell ime enable "$IME_COMPONENT"
 adb shell ime set "$IME_COMPONENT"
 ACTIVE_IME="$(adb shell settings get secure default_input_method | tr -d '\r')"
@@ -32,7 +29,7 @@ test_screen() {
   sleep 2
   adb logcat -d -b crash -v time > "test-results/${name}-crash.log" || true
   adb logcat -d -s AndroidRuntime:E -v time >> "test-results/${name}-crash.log" || true
-  if grep -Eq 'FATAL EXCEPTION|Unable to start activity|Process: com\.hyouka56\.blackofflinekeyboard' "test-results/${name}-crash.log"; then
+  if grep -Eq 'FATAL EXCEPTION|Unable to start activity|Process: com\\.hyouka56\\.blackofflinekeyboard' "test-results/${name}-crash.log"; then
     adb logcat -d -v time > "test-results/${name}-full-logcat.txt" || true
     echo "Crash detected while opening ${name}; logcat saved." >&2
     exit 1
@@ -44,6 +41,48 @@ test_screen() {
     exit 1
   fi
   grep -q "$PKG" "test-results/${name}-window.xml"
+  python3 - "$name" "test-results/${name}-window.xml" <<'PY'
+import sys
+import xml.etree.ElementTree as ET
+
+screen, path = sys.argv[1:3]
+nodes = list(ET.parse(path).getroot().iter())
+def matching_text(label):
+    return [n for n in nodes if (n.attrib.get("text") or "").strip() == label]
+def require_title(label, enabled):
+    found = matching_text(label)
+    assert found, f"{screen}: missing visible setting {label!r}"
+    expected = str(enabled).lower()
+    assert any(n.attrib.get("enabled") == expected for n in found), f"{screen}: {label!r} expected enabled={enabled}"
+def interactive_controls():
+    kinds = {"android.widget.Switch", "android.widget.SeekBar", "android.widget.CheckBox", "android.widget.RadioButton", "android.widget.ToggleButton"}
+    return [n for n in nodes if n.attrib.get("class") in kinds or n.attrib.get("checkable") == "true"]
+
+if screen == "keypress":
+    for label in ["Sound on keypress", "Keypress sound volume", "Popup on keypress", "Key long press delay"]:
+        require_title(label, False)
+    controls = interactive_controls()
+    assert controls, "keypress: no interactive settings controls were found"
+    assert all(n.attrib.get("enabled") == "false" for n in controls), "keypress: a keypress control is enabled"
+elif screen == "preferences":
+    disabled = ["Auto-capitalization", "Show separate number row", "Show special characters", "Show on-screen keyboard", "Switch to other keyboards", "Space swipe cursor move", "Delete swipe"]
+    for label in disabled:
+        require_title(label, False)
+    require_title("Show language switch key", True)
+    controls = interactive_controls()
+    enabled = [n for n in controls if n.attrib.get("enabled") == "true"]
+    assert len(enabled) == 1, f"preferences: expected exactly one enabled interactive control, found {len(enabled)}"
+    assert enabled[0].attrib.get("checked") == "true", "preferences: language-switch control must stay enabled and checked"
+elif screen == "settings":
+    for label in ["Languages", "Preferences", "Key press", "Appearance", "Privacy Policy", "License"]:
+        require_title(label, True)
+elif screen == "appearance":
+    for label in ["Theme", "Set custom keyboard color", "Keyboard height", "Bottom offset"]:
+        require_title(label, True)
+else:
+    raise AssertionError(f"Unknown settings screen {screen!r}")
+print(f"PASS: {screen} runtime UI state matches the enabled/disabled policy.")
+PY
   echo "PASS: ${name} settings UI opened without the IME gate or an AndroidRuntime crash."
 }
 
