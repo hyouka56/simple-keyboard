@@ -40,7 +40,7 @@ public final class SpacingAndPunctuations {
                 res.getString(R.string.symbols_sentence_terminators));
         mSentenceSeparator = res.getInteger(R.integer.sentence_separator);
         mAbbreviationMarker = res.getInteger(R.integer.abbreviation_marker);
-        final Locale locale = res.getConfiguration().locale;
+        final Locale locale = res.getConfiguration().getLocales().get(0);
         // Heuristic: we use American Typography rules because it's the most common rules for all
         // English variants. German rules (not "German typography") also have small gotchas.
         mUsesAmericanTypography = Locale.ENGLISH.getLanguage().equals(locale.getLanguage());

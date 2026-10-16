@@ -102,7 +102,7 @@ public final class LocaleResourceUtils {
      */
     public static String getLocaleDisplayNameInSystemLocale(
             final String localeString) {
-        final Locale displayLocale = sResources.getConfiguration().locale;
+        final Locale displayLocale = sResources.getConfiguration().getLocales().get(0);
         return getLocaleDisplayNameInternal(localeString, displayLocale);
     }
 
@@ -125,7 +125,7 @@ public final class LocaleResourceUtils {
      */
     public static String getLanguageDisplayNameInSystemLocale(
             final String localeString) {
-        final Locale displayLocale = sResources.getConfiguration().locale;
+        final Locale displayLocale = sResources.getConfiguration().getLocales().get(0);
         final String languageString;
         if (sExceptionalLocaleDisplayedInRootLocale.containsKey(localeString)) {
             languageString = localeString;

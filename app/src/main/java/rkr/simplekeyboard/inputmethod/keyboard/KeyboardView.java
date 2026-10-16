@@ -27,6 +27,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -261,7 +262,7 @@ public class KeyboardView extends View {
         final Drawable background = getBackground();
         if (background != null && mTheme.mCustomColorSupport) {
             if (keyboard.getClass() == MoreKeysKeyboard.class) {
-                background.setColorFilter(mCustomColor, PorterDuff.Mode.OVERLAY);
+                background.setColorFilter(new PorterDuffColorFilter(mCustomColor, PorterDuff.Mode.OVERLAY));
             } else {
                 setBackgroundColor(mCustomColor);
             }
@@ -506,9 +507,9 @@ public class KeyboardView extends View {
             return;
         }
         mInvalidatedKeys.add(key);
-        final int x = key.getX() + getPaddingLeft();
-        final int y = key.getY() + getPaddingTop();
-        invalidate(x, y, x + key.getWidth(), y + key.getHeight());
+        // Dirty rectangles are ignored by hardware-accelerated View rendering on API 21+.
+        // The cached keyboard buffer still tracks which keys need to be redrawn above.
+        invalidate();
     }
 
     @Override

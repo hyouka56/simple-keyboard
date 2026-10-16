@@ -20,6 +20,7 @@ package rkr.simplekeyboard.inputmethod.keyboard.internal;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.text.TextPaint;
@@ -97,7 +98,7 @@ public class KeyPreviewView extends TextView {
             return;
         }
         if (Color.alpha(backgroundColor) > 0) {
-            background.setColorFilter(backgroundColor, PorterDuff.Mode.OVERLAY);
+            background.setColorFilter(new PorterDuffColorFilter(backgroundColor, PorterDuff.Mode.OVERLAY));
         }
     }
 
