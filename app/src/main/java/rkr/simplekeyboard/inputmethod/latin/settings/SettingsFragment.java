@@ -18,22 +18,14 @@
 
 package rkr.simplekeyboard.inputmethod.latin.settings;
 
-import android.content.ActivityNotFoundException;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
-import android.net.Uri;
 import android.os.Bundle;
-import android.preference.Preference;
 import android.preference.PreferenceScreen;
-import android.util.Log;
 
 import rkr.simplekeyboard.inputmethod.R;
 import rkr.simplekeyboard.inputmethod.latin.utils.ApplicationUtils;
 
 public final class SettingsFragment extends InputMethodSettingsFragment {
-    private static final String TAG = "SettingsFragment";
-
     @Override
     public void onCreate(final Bundle icicle) {
         super.onCreate(icicle);
@@ -65,36 +57,6 @@ public final class SettingsFragment extends InputMethodSettingsFragment {
             preferenceScreen.setTitle(
                     ApplicationUtils.getActivityTitleResId(getActivity(), SettingsActivity.class));
         }
-        final Resources res = getResources();
 
-        final Preference privacyPreference = findPreference("privacy_policy");
-        if (privacyPreference != null) {
-            privacyPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    openUrl(res.getString(R.string.privacy_policy_url));
-                    return true;
-                }
-            });
-        }
-        final Preference licensePreference = findPreference("license");
-        if (licensePreference != null) {
-            licensePreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    openUrl(res.getString(R.string.license_url));
-                    return true;
-                }
-            });
-        }
-    }
-
-    private void openUrl(String uri) {
-        try {
-            final Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-            startActivity(browserIntent);
-        } catch (ActivityNotFoundException e) {
-            Log.e(TAG, "Browser not found");
-        }
     }
 }

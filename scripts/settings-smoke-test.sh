@@ -113,8 +113,10 @@ elif screen == "preferences":
     assert len(enabled) == 1, f"preferences: expected exactly one enabled interactive control, found {len(enabled)}"
     assert enabled[0].attrib.get("checked") == "true", "preferences: language-switch control must stay enabled and checked"
 elif screen == "settings":
-    for label in ["Languages", "Preferences", "Key press", "Appearance", "Privacy Policy", "License"]:
+    for label in ["Languages", "Preferences", "Key press", "Appearance"]:
         require_title(label, True)
+    for removed_label in ["Privacy Policy", "License"]:
+        assert not matching_text(removed_label), f"settings: removed entry {removed_label!r} must not appear"
 elif screen == "appearance":
     for label in ["Theme", "Set custom keyboard color", "Keyboard height", "Bottom offset"]:
         require_title(label, True)

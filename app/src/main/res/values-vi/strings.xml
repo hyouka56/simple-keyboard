@@ -57,8 +57,6 @@
     <string name="remove_language">"Xóa ngôn ngữ"</string>
     <string name="generic_language_layouts"><xliff:g id="LANGUAGE_NAME" example="English (US)">%s</xliff:g>" bố cục bàn phím"</string>
     <string name="change_keyboard">Thay đổi bàn phím</string>
-    <string name="privacy_policy">Chính sách bảo mật</string>
-    <string name="license">Giấy phép</string>
     <string name="show_language_switch_key">Hiển thị phím chuyển đổi ngôn ngữ</string>
     <string name="pref_use_on_screen">Hiển thị bàn phím trên màn hình</string>
     <string name="show_special_chars">Hiển thị các ký tự đặc biệt</string>

@@ -57,8 +57,6 @@
     <string name="remove_language">Hiq gjuhën</string>
     <string name="generic_language_layouts"><xliff:g id="LANGUAGE_NAME" example="English (US)">%s</xliff:g> paraqitjet e tastierës</string>
     <string name="change_keyboard">Ndrysho tastierën</string>
-    <string name="privacy_policy">Politika e Privatësisë</string>
-    <string name="license">Licencë</string>
     <string name="show_language_switch_key">Shfaq tastin e ndërrimit të gjuhës</string>
     <string name="pref_use_on_screen">Shfaq tastierën në ekran</string>
     <string name="show_special_chars">Shfaq karaktere të veçanta</string>

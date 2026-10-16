@@ -61,8 +61,6 @@
     <string name="remove_language">ভাষা অপসারণ</string>
     <string name="generic_language_layouts"><xliff:g id="LANGUAGE_NAME" example="English (US)">%s</xliff:g> কিবোর্ড লেআউট</string>
     <string name="change_keyboard">কিবোর্ড পরিবর্তন</string>
-    <string name="privacy_policy">গোপনীয়তা নীতি</string>
-    <string name="license">লাইসেন্স</string>
     <string name="show_language_switch_key">ভাষা পরিবর্তন কী দেখান</string>
     <string name="pref_use_on_screen">অন-স্ক্রিন কীবোর্ড দেখান</string>
     <string name="show_special_chars">বিশেষ অক্ষর দেখান</string>

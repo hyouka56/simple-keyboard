@@ -56,8 +56,6 @@
     <string name="remove_language">Poista kieli</string>
     <string name="generic_language_layouts"><xliff:g id="LANGUAGE_NAME" example="English (US)">%s</xliff:g> näppäimistöasettelut</string>
     <string name="change_keyboard">Vaihda näppäimistöä</string>
-    <string name="privacy_policy">Tietosuojakäytäntö</string>
-    <string name="license">Lisenssi</string>
     <string name="show_language_switch_key">Näytä kielenvaihtonäppäin</string>
     <string name="pref_use_on_screen">Näytä näyttönäppäimistö</string>
     <string name="show_special_chars">Näytä erikoismerkit</string>

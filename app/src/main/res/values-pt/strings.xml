@@ -59,6 +59,4 @@
     <string name="remove_language">Remover idioma</string>
     <string name="generic_language_layouts">Layouts de teclado para <xliff:g id="LANGUAGE_NAME" example="English (US)">%s</xliff:g></string>
     <string name="change_keyboard">Mudar teclado</string>
-    <string name="privacy_policy">Política de Privacidade</string>
-    <string name="license">Licença</string>
 </resources>

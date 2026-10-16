@@ -57,8 +57,6 @@
     <string name="remove_language">Αφαίρεση γλώσσας</string>
     <string name="generic_language_layouts"><xliff:g id="LANGUAGE_NAME" example="English (US)">%s</xliff:g> διατάξεις πληκτρολογίου</string>
     <string name="change_keyboard">Αλλαγή πληκτρολογίου</string>
-    <string name="privacy_policy">Πολιτική Απορρήτου</string>
-    <string name="license">Άδεια</string>
     <string name="show_language_switch_key">Εμφάνιση πλήκτρου εναλλαγής γλώσσας</string>
     <string name="pref_use_on_screen">Εμφάνιση πληκτρολογίου οθόνης</string>
     <string name="show_special_chars">Εμφάνιση ειδικών χαρακτήρων</string>

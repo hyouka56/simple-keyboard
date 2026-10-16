@@ -56,8 +56,6 @@
     <string name="remove_language">Elimina l\'idioma</string>
     <string name="generic_language_layouts"><xliff:g id="LANGUAGE_NAME" example="English (US)">%s</xliff:g> distribucions de teclat</string>
     <string name="change_keyboard">Canvia el teclat</string>
-    <string name="privacy_policy">Política de privacitat</string>
-    <string name="license">Llicència</string>
     <string name="show_language_switch_key">Mostra la tecla de canvi d\'idioma</string>
     <string name="pref_use_on_screen">Mostra el teclat en pantalla</string>
     <string name="show_special_chars">Mostra els caràcters especials</string>

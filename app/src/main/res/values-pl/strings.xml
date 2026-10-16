@@ -56,8 +56,6 @@
     <string name="remove_language">Usuń język</string>
     <string name="generic_language_layouts"><xliff:g id="LANGUAGE_NAME" example="English (US)">%s</xliff:g> układ klawiatury</string>
     <string name="change_keyboard">Zmień klawiaturę</string>
-    <string name="privacy_policy">Polityka prywatności</string>
-    <string name="license">Licencja</string>
     <string name="show_language_switch_key">Pokaż klawisz zmiany języka</string>
     <string name="pref_use_on_screen">Pokaż klawiaturę ekranową</string>
     <string name="show_special_chars">Pokaż znaki specjalne</string>

@@ -56,8 +56,6 @@
     <string name="remove_language">Отстрани јазик</string>
     <string name="generic_language_layouts"><xliff:g id="LANGUAGE_NAME" example="English (US)">%s</xliff:g> распоред на тастатурата</string>
     <string name="change_keyboard">Промени ја тастатурата</string>
-    <string name="privacy_policy">Политика за приватност</string>
-    <string name="license">Лиценца</string>
     <string name="show_language_switch_key">Прикажи копче за префрлување јазик</string>
     <string name="pref_use_on_screen">Прикажи тастатура на екранот</string>
     <string name="show_special_chars">Прикажи специјални знаци</string>

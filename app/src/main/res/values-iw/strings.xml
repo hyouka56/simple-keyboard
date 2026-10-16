@@ -57,8 +57,6 @@
     <string name="remove_language">הסר שפה</string>
     <string name="generic_language_layouts"> פריסות מקלדת<xliff:g id="LANGUAGE_NAME" example="English (US)">%s</xliff:g></string>
     <string name="change_keyboard">החלף מקלדת</string>
-    <string name="privacy_policy">מדיניות פרטיות</string>
-    <string name="license">רשיון</string>
     <string name="show_language_switch_key">הצג מקש החלפת שפה</string>
     <string name="pref_use_on_screen">הצג מקלדת על המסך</string>
     <string name="show_special_chars">הצג תווים מיוחדים</string>

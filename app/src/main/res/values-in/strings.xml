@@ -57,8 +57,6 @@
     <string name="remove_language">Hapus bahasa</string>
     <string name="generic_language_layouts"><xliff:g id="LANGUAGE_NAME">%s</xliff:g> tata letak keyboard</string>
     <string name="change_keyboard">Ganti keyboard</string>
-    <string name="privacy_policy">Kebijakan Privasi</string>
-    <string name="license">Lisensi</string>
     <string name="show_language_switch_key">Tampilkan tombol pengalih bahasa</string>
     <string name="pref_use_on_screen">Tampilkan papan ketik di layar</string>
     <string name="show_special_chars">Tampilkan karakter spesial</string>

@@ -56,8 +56,6 @@
     <string name="remove_language">Kendu hizkuntza</string>
     <string name="generic_language_layouts"><xliff:g id="LANGUAGE_NAME" example="English (US)">%s</xliff:g> teklatuaren diseinuak</string>
     <string name="change_keyboard">Aldatu teklatua</string>
-    <string name="privacy_policy">Pribatutasun Politika</string>
-    <string name="license">Lizentzia</string>
     <string name="show_language_switch_key">Hizkuntza aldatzeko tekla erakutsi</string>
     <string name="pref_use_on_screen">Erakutsi pantailako teklatua</string>
     <string name="show_special_chars">Erakutsi karaktere bereziak</string>

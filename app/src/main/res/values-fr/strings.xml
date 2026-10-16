@@ -57,8 +57,6 @@
     <string name="remove_language">Supprimer la langue</string>
     <string name="generic_language_layouts"><xliff:g id="LANGUAGE_NAME" example="English (US)">%s</xliff:g> dispositions du clavier</string>
     <string name="change_keyboard">Changer de clavier</string>
-    <string name="privacy_policy">Politique de confidentialité</string>
-    <string name="license">Licence</string>
     <string name="show_language_switch_key">Afficher la touche de changement de langue</string>
     <string name="pref_use_on_screen">Afficher le clavier à l\'écran</string>
     <string name="show_special_chars">Afficher les caractères spéciaux</string>

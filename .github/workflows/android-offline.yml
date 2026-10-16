@@ -52,6 +52,18 @@ jobs:
           assert 'android.permission.VIBRATE' not in manifest, 'Vibration permission found'
           assert 'android:allowBackup="false"' in manifest, 'Backups must remain disabled'
 
+          settings_xml = Path('app/src/main/res/xml/prefs.xml').read_text()
+          assert 'android:key="privacy_policy"' not in settings_xml, 'Privacy Policy entry must stay removed'
+          assert 'android:key="license"' not in settings_xml, 'License entry must stay removed'
+          settings_fragment = Path('app/src/main/java/rkr/simplekeyboard/inputmethod/latin/settings/SettingsFragment.java').read_text()
+          assert 'Intent.ACTION_VIEW' not in settings_fragment and 'openUrl(' not in settings_fragment, 'Settings must not open external URLs'
+          assert 'privacy_policy_url' not in settings_fragment and 'license_url' not in settings_fragment, 'External link handlers must stay removed'
+          appname_strings = Path('app/src/main/res/values/strings-appname.xml').read_text()
+          assert 'privacy_policy_url' not in appname_strings and 'license_url' not in appname_strings, 'External URL resources must stay removed'
+          for strings_file in Path('app/src/main/res').glob('values*/strings.xml'):
+              content = strings_file.read_text()
+              assert not re.search(r'<string\s+name="(?:privacy_policy|license)"', content), f'{strings_file}: removed legal-link label still exists'
+
           locale_source = Path('app/src/main/java/rkr/simplekeyboard/inputmethod/latin/utils/SubtypeLocaleUtils.java').read_text()
           match = re.search(r'sSupportedLocales\s*=\s*new String\[\]\s*\{(.*?)\};', locale_source, re.S)
           assert match, 'Could not locate supported locale allowlist'

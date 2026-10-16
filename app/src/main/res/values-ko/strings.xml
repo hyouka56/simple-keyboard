@@ -57,8 +57,6 @@
     <string name="remove_language">언어를 제거하세요</string>
     <string name="generic_language_layouts"><xliff:g id="LANGUAGE_NAME" example="English (US)">%s</xliff:g> 키보드 레이아웃</string>
     <string name="change_keyboard">키보드 변경</string>
-    <string name="privacy_policy">개인정보 보호정책</string>
-    <string name="license">특허</string>
     <string name="show_language_switch_key">언어 전환 키를 표시합니다</string>
     <string name="pref_use_on_screen">화면 키보드 표시</string>
     <string name="show_special_chars">특수 문자를 표시합니다</string>

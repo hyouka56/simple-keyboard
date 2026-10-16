@@ -57,8 +57,6 @@
     <string name="remove_language">Ta bort språk</string>
     <string name="generic_language_layouts"><xliff:g id="LANGUAGE_NAME" example="English (US)">%s</xliff:g> tangentbordslayouter</string>
     <string name="change_keyboard">Ändra tangentbord</string>
-    <string name="privacy_policy">Integritetspolicy</string>
-    <string name="license">Licens</string>
     <string name="show_language_switch_key">Visa språkväxlingsknapp</string>
     <string name="pref_use_on_screen">Visa tangentbordet på skärmen</string>
     <string name="show_special_chars">Visa specialtecken</string>

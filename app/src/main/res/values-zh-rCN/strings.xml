@@ -58,8 +58,6 @@
     <string name="remove_language">删除语言</string>
     <string name="generic_language_layouts"><xliff:g id="LANGUAGE_NAME">%s</xliff:g> 键盘布局</string>
     <string name="change_keyboard">更改键盘</string>
-    <string name="privacy_policy">隐私政策</string>
-    <string name="license">许可证</string>
     <string name="show_language_switch_key">显示语言切换键</string>
     <string name="pref_use_on_screen">显示屏幕键盘</string>
     <string name="show_special_chars">显示特殊字符</string>

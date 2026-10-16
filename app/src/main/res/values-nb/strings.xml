@@ -56,8 +56,6 @@
     <string name="remove_language">Fjern språk</string>
     <string name="generic_language_layouts"><xliff:g id="LANGUAGE_NAME" example="English (US)">%s</xliff:g> tastaturlayouter</string>
     <string name="change_keyboard">Endre tastatur</string>
-    <string name="privacy_policy">Personvernerklæring</string>
-    <string name="license">Lisens</string>
     <string name="show_language_switch_key">Vis knapp for å endre språk</string>
     <string name="pref_use_on_screen">Vis skjermtastaturet</string>
     <string name="show_special_chars">Vis symbol</string>

@@ -57,8 +57,6 @@
     <string name="remove_language">Выдаліць мову</string>
     <string name="generic_language_layouts"><xliff:g id="LANGUAGE_NAME" example="English (US)">%s</xliff:g> раскладкі клавіятуры</string>
     <string name="change_keyboard">Змяніць клавіятуру</string>
-    <string name="privacy_policy">Палітыка прыватнасці</string>
-    <string name="license">Ліцэнзія</string>
     <string name="show_language_switch_key">Паказаць клавішу пераключэння мовы</string>
     <string name="pref_use_on_screen">Паказаць экранную клавіятуру</string>
     <string name="show_special_chars">Паказаць спецыяльныя сімвалы</string>

@@ -56,8 +56,6 @@
     <string name="remove_language">Nyelv eltávolítása</string>
     <string name="generic_language_layouts"><xliff:g id="LANGUAGE_NAME" example="English (US)">%s</xliff:g> billentyűzetkiosztások</string>
     <string name="change_keyboard">Billentyűzetváltás</string>
-    <string name="privacy_policy">Adatvédelmi irányelvek</string>
-    <string name="license">Engedély</string>
     <string name="show_language_switch_key">Nyelvváltó gomb megjelenítése</string>
     <string name="pref_use_on_screen">Képernyő-billentyűzet megjelenítése</string>
     <string name="show_special_chars">Speciális karakterek megjelenítése</string>
