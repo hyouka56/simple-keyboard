@@ -8,12 +8,9 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 # Enable and select the IME first. Otherwise SettingsActivity intentionally shows
 # an "IME is not enabled" dialog and a smoke test can pass without seeing settings.
-IME_COMPONENT="$(adb shell ime list -s | tr -d '\r' | grep -F "$PKG/" | grep -F 'rkr.simplekeyboard.inputmethod.latin.LatinIME' | head -n 1 || true)"
-if [[ -z "$IME_COMPONENT" ]]; then
-  adb shell ime list -s >&2
-  echo "Could not find the Simple Keyboard input-method service on the emulator." >&2
-  exit 1
-fi
+# This is the fully qualified service declared by AndroidManifest.xml. Do not
+# discover it with `ime list -s` before enabling it: that output omits disabled IMEs.
+IME_COMPONENT="$PKG/rkr.simplekeyboard.inputmethod.latin.LatinIME"
 adb shell ime enable "$IME_COMPONENT"
 adb shell ime set "$IME_COMPONENT"
 ACTIVE_IME="$(adb shell settings get secure default_input_method | tr -d '\r')"
