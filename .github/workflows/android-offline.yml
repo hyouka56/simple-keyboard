@@ -113,7 +113,7 @@ jobs:
           cache-provider: basic
 
       - name: Build debug APK
-        run: gradle --no-daemon --stacktrace assembleDebug
+        run: gradle --no-daemon --warning-mode=all --stacktrace assembleDebug
 
       - name: Verify final APK permissions
         shell: bash
