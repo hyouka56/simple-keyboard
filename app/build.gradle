@@ -30,3 +30,8 @@ android {
 
 dependencies {
 }
+
+// Report exact deprecated Java API call sites instead of only a generic compiler note.
+tasks.withType(org.gradle.api.tasks.compile.JavaCompile).configureEach {
+    options.compilerArgs += ['-Xlint:deprecation']
+}
