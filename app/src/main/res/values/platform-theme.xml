@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 /*
-**
 ** Copyright 2014, The Android Open Source Project
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,14 +20,22 @@
 <resources>
     <style name="platformSettingsTheme" parent="@android:style/Theme.Material">
         <item name="android:colorAccent">#80CBC4</item>
+        <item name="android:colorPrimary">#000000</item>
+        <item name="android:colorPrimaryDark">#000000</item>
         <item name="android:colorBackground">#000000</item>
         <item name="android:windowBackground">#000000</item>
         <item name="android:colorForeground">#FFFFFFFF</item>
         <item name="android:statusBarColor">#000000</item>
         <item name="android:navigationBarColor">#000000</item>
         <item name="android:windowLightStatusBar">false</item>
+        <item name="android:alertDialogTheme">@style/platformDialogTheme</item>
     </style>
     <style name="platformDialogTheme" parent="@android:style/Theme.Material.Dialog">
         <item name="android:colorAccent">#80CBC4</item>
+        <item name="android:colorPrimary">#000000</item>
+        <item name="android:colorPrimaryDark">#000000</item>
+        <item name="android:colorBackground">#000000</item>
+        <item name="android:windowBackground">#000000</item>
+        <item name="android:colorForeground">#FFFFFFFF</item>
     </style>
 </resources>
