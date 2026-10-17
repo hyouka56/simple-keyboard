@@ -158,7 +158,22 @@ public class RichInputMethodManager {
             if (subtypes == null || subtypes.size() < 1) {
                 mSubtypes = SubtypeLocaleUtils.getDefaultSubtypes(context.getResources());
             } else {
-                mSubtypes = subtypes;
+                final List<Subtype> supportedSubtypes = new ArrayList<>();
+                for (final Subtype subtype : subtypes) {
+                    if (SubtypeLocaleUtils.getSupportedLocales().contains(subtype.getLocale())) {
+                        supportedSubtypes.add(subtype);
+                    }
+                }
+                if (supportedSubtypes.isEmpty()) {
+                    // Older builds could persist regional variants that are no longer exposed.
+                    mSubtypes = SubtypeLocaleUtils.getDefaultSubtypes(context.getResources());
+                    saveSubtypeListPref();
+                } else {
+                    mSubtypes = supportedSubtypes;
+                    if (supportedSubtypes.size() != subtypes.size()) {
+                        saveSubtypeListPref();
+                    }
+                }
             }
             mCurrentSubtypeIndex = 0;
         }

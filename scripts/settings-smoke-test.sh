@@ -73,6 +73,8 @@ test_screen() {
     echo "Crash detected while opening ${name}; logcat saved." >&2
     exit 1
   fi
+  adb_safe shell screencap -p "/sdcard/${name}-screen.png"
+  adb_safe pull "/sdcard/${name}-screen.png" "test-results/${name}-screen.png" >/dev/null
   adb_safe shell uiautomator dump "/sdcard/${name}-window.xml" >/dev/null
   adb_safe pull "/sdcard/${name}-window.xml" "test-results/${name}-window.xml" >/dev/null
   if grep -Fq 'Simple Keyboard is not enabled' "test-results/${name}-window.xml"; then

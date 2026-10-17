@@ -70,20 +70,35 @@ jobs:
           locales = re.findall(r'LOCALE_[A-Z0-9_]+', match.group(1))
           assert locales == [
               'LOCALE_ENGLISH_UNITED_STATES',
-              'LOCALE_ENGLISH_GREAT_BRITAIN',
-              'LOCALE_ENGLISH_INDIA',
               'LOCALE_ARABIC',
-          ], f'Unexpected input language allowlist: {locales}'
+          ], f'Expected exactly Arabic and English (US): {locales}'
           assert 'if (!isAllowedLocale(locale))' in locale_source, 'Locale guard missing'
+          subtype_manager = Path('app/src/main/java/rkr/simplekeyboard/inputmethod/latin/RichInputMethodManager.java').read_text()
+          assert 'SubtypeLocaleUtils.getSupportedLocales().contains(subtype.getLocale())' in subtype_manager, 'Saved legacy locales must be filtered during migration'
+          restriction_strings = Path('app/src/main/res/values/strings.xml').read_text()
+          assert 'en_US:qwerty;ar:arabic' in restriction_strings and 'de:qwertz' not in restriction_strings, 'Managed-device locale list must contain only English and Arabic'
 
-          for file in ('app/src/main/res/values/colors.xml', 'app/src/main/res/values-night/colors.xml'):
+          for file in (
+              'app/src/main/res/values/colors.xml',
+              'app/src/main/res/values-night/colors.xml',
+              'app/src/main/res/values-v31/colors.xml',
+              'app/src/main/res/values-night-v31/colors.xml',
+          ):
               root = ET.parse(file).getroot()
               colors = {e.attrib.get('name'): (e.text or '').strip().lower() for e in root.findall('color')}
-              required = ['background_lxx_system', 'background_secondary_lxx_system']
-              if file.endswith('/values/colors.xml'):
-                  required += ['background_lxx_light', 'background_secondary_lxx_light', 'background_lxx_dark', 'background_secondary_lxx_dark']
-              for name in required:
+              backgrounds = ['background_lxx_system', 'background_secondary_lxx_system']
+              for name in backgrounds:
                   assert colors.get(name) == '#000000', f'{file}: {name} must be #000000'
+              for name in ('key_background_normal_lxx_system', 'key_background_pressed_lxx_system'):
+                  assert colors.get(name) == '#ff000000', f'{file}: {name} must be opaque black'
+              if file.endswith('/values/colors.xml'):
+                  for name in ('background_lxx_light', 'background_secondary_lxx_light', 'background_lxx_dark', 'background_secondary_lxx_dark'):
+                      assert colors.get(name) == '#000000', f'{file}: {name} must be #000000'
+              for name in ('key_text_color_lxx_system', 'key_functional_text_color_lxx_system'):
+                  assert colors.get(name) == '#ffffffff', f'{file}: {name} must remain readable on black'
+          platform_theme = Path('app/src/main/res/values/platform-theme.xml').read_text()
+          assert '<item name="android:colorBackground">#000000</item>' in platform_theme, 'Settings background must be pure black'
+          assert '<item name="android:windowBackground">#000000</item>' in platform_theme, 'Settings window background must be pure black'
 
           appearance_xml = Path('app/src/main/res/xml/prefs_screen_appearance.xml').read_text()
           assert 'android:key="pref_keyboard_color"' in appearance_xml, 'Reference keyboard colour dialog must remain available'
