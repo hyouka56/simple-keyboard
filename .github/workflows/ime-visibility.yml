@@ -9,10 +9,13 @@ on:
 permissions:
   contents: read
 
+# Keep this separate from the production ARM64 build. The emulator run has a
+# finite job budget and is started/stopped directly through the Android SDK;
+# it does not rely on the currently hanging third-party emulator-runner action.
 jobs:
   keyboard-visibility:
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    timeout-minutes: 15
     steps:
       - name: Check out source
         uses: actions/checkout@v7
@@ -30,18 +33,23 @@ jobs:
           gradle-version: '9.6.0'
           cache-provider: basic
 
-      - name: Install Android SDK packages required by the app
+      - name: Install Android SDK packages required by app and emulator
         shell: bash
         run: |
           set -euo pipefail
-          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
-          if [ ! -x "$SDKMANAGER" ]; then
-            SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -path '*/bin/sdkmanager' -type f | head -n 1)"
-          fi
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -path '*/bin/sdkmanager' -type f | sort | tail -n 1)"
           test -x "$SDKMANAGER"
           LICENSE_ACCEPTANCES="$(printf 'y\n%.0s' {1..100})"
           "$SDKMANAGER" --licenses <<< "$LICENSE_ACCEPTANCES" >/dev/null
-          "$SDKMANAGER" "platforms;android-36" "build-tools;36.0.0" "ndk;28.2.13676358" "cmake;3.22.1"
+          "$SDKMANAGER" \
+            "platforms;android-36" \
+            "platforms;android-31" \
+            "build-tools;36.0.0" \
+            "platform-tools" \
+            "emulator" \
+            "system-images;android-31;google_apis;x86_64" \
+            "ndk;28.2.13676358" \
+            "cmake;3.22.1"
 
       - name: Verify KVM acceleration is available
         shell: bash
@@ -50,17 +58,48 @@ jobs:
           test -r /dev/kvm && test -w /dev/kvm
           echo "KVM device is accessible to the runner."
 
-      - name: Test real IME visibility on Android 12
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 31
-          target: google_apis
-          arch: x86_64
-          profile: pixel_2
-          disable-animations: true
-          disable-linux-hw-accel: false
-          emulator-boot-timeout: 1200
-          script: bash scripts/keyboard-visibility-smoke-test.sh
+      - name: Create and start Android 12 emulator with finite timeouts
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p test-results
+          AVDMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -path '*/bin/avdmanager' -type f | sort | tail -n 1)"
+          test -x "$AVDMANAGER"
+          printf 'no\n' | timeout 45s "$AVDMANAGER" create avd --force \
+            -n ime-api31-x86_64 \
+            -k "system-images;android-31;google_apis;x86_64" \
+            -d pixel_2
+          nohup "$ANDROID_HOME/emulator/emulator" \
+            -avd ime-api31-x86_64 \
+            -no-window -gpu swiftshader_indirect -no-snapshot -noaudio \
+            -no-boot-anim -camera-back none -no-metrics -wipe-data \
+            > test-results/emulator-console.log 2>&1 &
+          EMULATOR_PID=$!
+          echo "$EMULATOR_PID" > test-results/emulator.pid
+          cleanup_emulator() {
+            status=$?
+            set +e
+            if kill -0 "$EMULATOR_PID" 2>/dev/null; then
+              kill "$EMULATOR_PID" 2>/dev/null
+              timeout 15s adb emu kill >/dev/null 2>&1
+              wait "$EMULATOR_PID" 2>/dev/null
+            fi
+            exit "$status"
+          }
+          trap cleanup_emulator EXIT
+          timeout 150s adb wait-for-device
+          if ! timeout 180s bash -c 'until [[ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d "\r")" == "1" ]]; do sleep 2; done'; then
+            echo 'Android emulator did not complete boot in 180 seconds.' >&2
+            tail -n 160 test-results/emulator-console.log >&2 || true
+            exit 1
+          fi
+          adb shell settings put global window_animation_scale 0
+          adb shell settings put global transition_animation_scale 0
+          adb shell settings put global animator_duration_scale 0
+          adb shell settings put secure show_ime_with_hard_keyboard 1
+          adb shell getprop ro.build.version.release | tee test-results/emulator-android-release.txt
+          adb shell getprop ro.build.version.sdk | tee test-results/emulator-android-api.txt
+          timeout 300s bash scripts/keyboard-visibility-smoke-test.sh
 
       - name: Upload IME visibility diagnostics
         if: always()

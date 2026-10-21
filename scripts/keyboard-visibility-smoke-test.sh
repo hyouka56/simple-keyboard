@@ -9,17 +9,17 @@ mkdir -p "$RESULTS"
 capture_diagnostics() {
   status=$?
   set +e
-  adb logcat -d -v threadtime > "$RESULTS/ime-visibility-logcat.txt" 2>&1
-  adb shell dumpsys input_method > "$RESULTS/ime-visibility-input-method.txt" 2>&1
-  adb shell dumpsys window windows > "$RESULTS/ime-visibility-windows.txt" 2>&1
-  adb shell settings get secure default_input_method > "$RESULTS/ime-visibility-active-ime.txt" 2>&1
+  timeout 15s adb logcat -d -v threadtime > "$RESULTS/ime-visibility-logcat.txt" 2>&1
+  timeout 15s adb shell dumpsys input_method > "$RESULTS/ime-visibility-input-method.txt" 2>&1
+  timeout 15s adb shell dumpsys window windows > "$RESULTS/ime-visibility-windows.txt" 2>&1
+  timeout 15s adb shell settings get secure default_input_method > "$RESULTS/ime-visibility-active-ime.txt" 2>&1
   exit "$status"
 }
 trap capture_diagnostics EXIT
 
-# Rebuild only this local emulator copy as x86_64. The production ARM64 APK is
-# built, checked and uploaded before this script is invoked.
-gradle --no-daemon --warning-mode=all -PkeyboardAbi=x86_64 \
+# This local emulator build uses x86_64 only for the runtime test. The
+# production ARM64 APK is separately built, checked and uploaded by the main CI.
+timeout 180s gradle --no-daemon --warning-mode=all -PkeyboardAbi=x86_64 \
   assembleDebug assembleDebugAndroidTest 2>&1 | tee "$RESULTS/ime-visibility-build.log"
 
 timeout 30s adb install -r app/build/outputs/apk/debug/app-debug.apk \
@@ -30,9 +30,6 @@ if ! grep -Fq "$IME_COMPONENT" "$RESULTS/ime-visibility-ime-list.txt"; then
   cat "$RESULTS/ime-visibility-ime-list.txt" >&2
   exit 1
 fi
-# Android emulator images report a physical keyboard by default. On Android 12
-# the IME service respects that signal and can hide the software keyboard unless
-# the system is explicitly configured to show it, unlike a normal phone.
 timeout 30s adb shell settings put secure show_ime_with_hard_keyboard 1
 timeout 30s adb shell ime enable "$IME_COMPONENT" 2>&1 \
   | tee "$RESULTS/ime-visibility-enable.log"
@@ -45,5 +42,5 @@ if [[ "$ACTIVE_IME" != "$IME_COMPONENT" ]]; then
   exit 1
 fi
 
-gradle --no-daemon --warning-mode=all -PkeyboardAbi=x86_64 \
+timeout 300s gradle --no-daemon --warning-mode=all -PkeyboardAbi=x86_64 \
   connectedDebugAndroidTest 2>&1 | tee "$RESULTS/ime-visibility-test.log"
