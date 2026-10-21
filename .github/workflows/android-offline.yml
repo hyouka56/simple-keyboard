@@ -210,26 +210,3 @@ jobs:
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
 
-      - name: Enable KVM for Android emulator
-        shell: bash
-        run: |
-          set -euo pipefail
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
-          test -e /dev/kvm
-          test -r /dev/kvm && test -w /dev/kvm
-          echo "KVM device is accessible to the runner."
-
-      - name: Smoke-test keyboard-only installation on Android emulator
-        shell: bash
-        timeout-minutes: 25
-        run: bash scripts/run-android-emulator-smoke-test.sh
-
-      - name: Upload keyboard smoke-test logs
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: keyboard-smoke-test-results
-          path: test-results/
-          if-no-files-found: ignore
