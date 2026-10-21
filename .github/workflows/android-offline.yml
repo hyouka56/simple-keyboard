@@ -56,7 +56,10 @@ jobs:
           manifest_root = ET.fromstring(manifest)
           application = manifest_root.find('application')
           assert application is not None, 'Application element is missing'
-          assert any(component.tag == 'service' and component.attrib.get(android_ns + 'name') == '.latin.LatinIME' for component in application), 'Keyboard input-method service must remain declared'
+          ime_service = next((component for component in application.findall('service') if component.attrib.get(android_ns + 'name') == '.latin.LatinIME'), None)
+          assert ime_service is not None, 'Keyboard input-method service must remain declared'
+          assert ime_service.attrib.get(android_ns + 'exported') == 'true', 'Android must be able to bind to the input-method service'
+          assert ime_service.attrib.get(android_ns + 'permission') == 'android.permission.BIND_INPUT_METHOD', 'Input-method service must remain protected by BIND_INPUT_METHOD'
           assert not any('SettingsActivity' in component.attrib.get(android_ns + 'name', '') for component in application.findall('activity')), 'Settings Activity must stay removed'
           for component in application:
               for intent_filter in component.findall('intent-filter'):
