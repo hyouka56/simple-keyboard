@@ -159,7 +159,11 @@ jobs:
           assert 'mKeyboardHeightScale = Settings.readKeyboardHeight(prefs, DEFAULT_SIZE_SCALE);' in keyboard_settings_source, 'Keyboard height preference must remain available to runtime'
           keyboard_theme_source = Path('app/src/main/java/rkr/simplekeyboard/inputmethod/keyboard/KeyboardTheme.java').read_text()
           assert 'new KeyboardTheme(THEME_ID_SYSTEM, "LXXSystem", R.style.KeyboardTheme_LXX_System, true)' in keyboard_theme_source, 'System keyboard theme must remain the default'
-          assert not Path('app/src/main/res/values/platform-theme.xml').exists(), 'Separate settings-window theme must stay removed with the settings UI'
+          platform_theme = Path('app/src/main/res/values/platform-theme.xml').read_text()
+          assert 'name=\"platformDialogTheme\"' in platform_theme, 'Input-method picker dialog theme must remain available'
+          assert 'name=\"platformSettingsTheme\"' not in platform_theme, 'Standalone settings-window theme must stay removed'
+          assert '<item name=\"android:colorBackground\">#000000</item>' in platform_theme, 'Dialog background must remain pure black'
+          assert '<item name=\"android:windowBackground\">#000000</item>' in platform_theme, 'Dialog window background must remain pure black'
           assert not Path('app/src/main/res/xml/prefs_screen_appearance.xml').exists(), 'Appearance preference screen must stay removed'
 
           for file in ('app/src/main/res/values/colors.xml', 'app/src/main/res/values-night/colors.xml'):
