@@ -52,6 +52,26 @@ jobs:
           assert 'android.permission.VIBRATE' not in manifest, 'Vibration permission found'
           assert 'android:allowBackup="false"' in manifest, 'Backups must remain disabled'
 
+          android_ns = '{http://schemas.android.com/apk/res/android}'
+          manifest_root = ET.fromstring(manifest)
+          application = manifest_root.find('application')
+          assert application is not None, 'Application element is missing'
+          assert any(component.tag == 'service' and component.attrib.get(android_ns + 'name') == '.latin.LatinIME' for component in application), 'Keyboard input-method service must remain declared'
+          assert not any('SettingsActivity' in component.attrib.get(android_ns + 'name', '') for component in application.findall('activity')), 'Settings Activity must stay removed'
+          for component in application:
+              for intent_filter in component.findall('intent-filter'):
+                  actions = {node.attrib.get(android_ns + 'name') for node in intent_filter.findall('action')}
+                  categories = {node.attrib.get(android_ns + 'name') for node in intent_filter.findall('category')}
+                  assert not ('android.intent.action.MAIN' in actions and 'android.intent.category.LAUNCHER' in categories), 'Launcher UI must stay removed'
+          input_method_xml = ET.parse('app/src/main/res/xml/method.xml').getroot()
+          assert android_ns + 'settingsActivity' not in input_method_xml.attrib, 'Input method must not advertise an in-app settings screen'
+          latin_ime_source = Path('app/src/main/java/rkr/simplekeyboard/inputmethod/latin/LatinIME.java').read_text()
+          assert 'SettingsActivity' not in latin_ime_source, 'Keyboard must not launch the removed Settings Activity'
+          keyboard_texts = Path('app/src/main/java/rkr/simplekeyboard/inputmethod/keyboard/internal/KeyboardTextsTable.java').read_text()
+          assert '/* keyspec_settings */ "!icon/paste_key|!code/key_paste"' in keyboard_texts, 'Long-press popup must retain paste but not the settings gear'
+          common_key_styles = Path('app/src/main/res/xml/key_styles_common.xml').read_text()
+          assert 'latin:styleName="deleteKeyStyle"' in common_key_styles and 'latin:keySpec="!icon/delete_key|!code/key_delete"' in common_key_styles, 'Delete key must remain available'
+
           settings_xml = Path('app/src/main/res/xml/prefs.xml').read_text()
           assert 'android:key="privacy_policy"' not in settings_xml, 'Privacy Policy entry must stay removed'
           assert 'android:key="license"' not in settings_xml, 'License entry must stay removed'
@@ -171,7 +191,7 @@ jobs:
           test -r /dev/kvm && test -w /dev/kvm
           echo "KVM device is accessible to the runner."
 
-      - name: Smoke-test settings screens on Android emulator
+      - name: Smoke-test keyboard-only installation on Android emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 36
@@ -182,12 +202,12 @@ jobs:
           disable-animations: true
           disable-linux-hw-accel: false
           emulator-boot-timeout: 1200
-          script: bash scripts/settings-smoke-test.sh
+          script: bash scripts/keyboard-smoke-test.sh
 
       - name: Upload settings smoke-test logs
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: settings-smoke-test-results
+          name: keyboard-smoke-test-results
           path: test-results/
           if-no-files-found: ignore
