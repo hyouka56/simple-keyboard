@@ -76,7 +76,11 @@ jobs:
           latin_ime_source = Path('app/src/main/java/rkr/simplekeyboard/inputmethod/latin/LatinIME.java').read_text()
           assert 'SettingsActivity.class' in latin_ime_source, 'Keyboard must launch Settings Activity from its settings key'
           keyboard_texts = Path('app/src/main/java/rkr/simplekeyboard/inputmethod/keyboard/internal/KeyboardTextsTable.java').read_text()
-          assert '!icon/settings_key|!code/key_settings' in keyboard_texts and '!code/key_paste' in keyboard_texts, 'Long-press popup must include paste and settings'
+          settings_more_keys = next(
+              line for line in keyboard_texts.splitlines()
+              if '/* keyspec_settings */' in line
+          )
+          assert '!icon/paste_key|!code/key_paste' in settings_more_keys and '!icon/settings_key|!code/key_settings' not in settings_more_keys, 'Paste long-press popup must not include settings shortcut'
           common_key_styles = Path('app/src/main/res/xml/key_styles_common.xml').read_text()
           assert 'latin:styleName="deleteKeyStyle"' in common_key_styles and 'latin:keySpec="!icon/delete_key|!code/key_delete"' in common_key_styles, 'Delete key must remain available'
           settings_ui_files = [
