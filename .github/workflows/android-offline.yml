@@ -222,21 +222,9 @@ jobs:
           echo "KVM device is accessible to the runner."
 
       - name: Smoke-test keyboard-only installation on Android emulator
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 36
-          target: google_apis
-          arch: x86_64
-          profile: pixel_2
-          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
-          pre-emulator-launch-script: |
-            mkdir -p "$HOME/.android"
-            : > "$HOME/.android/emu-update-last-check.ini"
-            adb start-server
-          disable-animations: true
-          disable-linux-hw-accel: false
-          emulator-boot-timeout: 1200
-          script: bash scripts/keyboard-smoke-test.sh
+        shell: bash
+        timeout-minutes: 25
+        run: bash scripts/run-android-emulator-smoke-test.sh
 
       - name: Upload keyboard smoke-test logs
         if: always()
