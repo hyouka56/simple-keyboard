@@ -2,8 +2,8 @@ package rkr.simplekeyboard.inputmethod.imecheck;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.WindowManager;
-import android.view.inputmethod.InputType;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
