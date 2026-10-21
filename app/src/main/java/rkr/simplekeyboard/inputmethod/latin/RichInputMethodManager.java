@@ -25,6 +25,7 @@ import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.inputmethodservice.InputMethodService;
+import android.os.Build;
 import android.os.IBinder;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -45,7 +46,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.Executors;
 
 import rkr.simplekeyboard.inputmethod.R;
 import rkr.simplekeyboard.inputmethod.compat.PreferenceManagerCompat;
@@ -503,7 +503,8 @@ public class RichInputMethodManager {
      *                      methods.
      * @return whether the switch was successful.
      */
-    public boolean switchToNextInputMethod(final IBinder token, final boolean onlyCurrentIme) {
+    public boolean switchToNextInputMethod(final InputMethodService inputMethodService,
+                                           final IBinder token, final boolean onlyCurrentIme) {
         if (onlyCurrentIme) {
             if (!hasMultipleEnabledSubtypes()) {
                 return false;
@@ -513,8 +514,14 @@ public class RichInputMethodManager {
         if (mSubtypeList.switchToNextSubtype(false)) {
             return true;
         }
-        // switch to a different IME
-        if (mImmService.switchToNextInputMethod(token, false)) {
+        // Switch to a different IME using the supported service API on Android 9 and later.
+        final boolean switchedToNextIme;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            switchedToNextIme = inputMethodService.switchToNextInputMethod(false);
+        } else {
+            switchedToNextIme = switchToNextInputMethodLegacy(token);
+        }
+        if (switchedToNextIme) {
             return true;
         }
         if (hasMultipleEnabledSubtypes()) {
@@ -541,8 +548,24 @@ public class RichInputMethodManager {
      *              which allows it to perform this operation on itself.
      * @return whether the IME should offer ways to switch to a next input method.
      */
-    public boolean shouldOfferSwitchingToOtherInputMethods(final IBinder binder) {
-        return mImmService.shouldOfferSwitchingToNextInputMethod(binder);
+    public boolean shouldOfferSwitchingToOtherInputMethods(
+            final InputMethodService inputMethodService, final IBinder binder) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            return inputMethodService.shouldOfferSwitchingToNextInputMethod();
+        }
+        return shouldOfferSwitchingToNextInputMethodLegacy(binder);
+    }
+
+    @SuppressWarnings("deprecation")
+    private boolean switchToNextInputMethodLegacy(final IBinder token) {
+        // Required to preserve IME switching on the minimum supported Android API (24-27).
+        return mImmService.switchToNextInputMethod(token, false);
+    }
+
+    @SuppressWarnings("deprecation")
+    private boolean shouldOfferSwitchingToNextInputMethodLegacy(final IBinder token) {
+        // Required to preserve language-switch availability on Android API 24-27.
+        return mImmService.shouldOfferSwitchingToNextInputMethod(token);
     }
 
     /**
@@ -724,16 +747,7 @@ public class RichInputMethodManager {
      */
     private void switchToTargetIme(final String imiId, final InputMethodSubtype subtype,
                                    final InputMethodService context) {
-        final IBinder token = context.getWindow().getWindow().getAttributes().token;
-        if (token == null) {
-            return;
-        }
-        final InputMethodManager imm = mImmService;
-        Executors.newSingleThreadExecutor().execute(new Runnable() {
-            @Override
-            public void run() {
-                imm.setInputMethodAndSubtype(token, imiId, subtype);
-            }
-        });
+        // InputMethodService owns this operation; the InputMethodManager equivalent is deprecated.
+        context.switchInputMethod(imiId, subtype);
     }
 }

@@ -63,18 +63,25 @@ public final class LocaleUtils {
                 return sLocaleCache.get(localeString);
             }
             final String[] elements = localeString.split("_", 3);
-            final Locale locale;
-            if (elements.length == 1) {
-                locale = new Locale(elements[0] /* language */);
-            } else if (elements.length == 2) {
-                locale = new Locale(elements[0] /* language */, elements[1] /* country */);
-            } else { // localeParams.length == 3
-                locale = new Locale(elements[0] /* language */, elements[1] /* country */,
-                        elements[2] /* variant */);
-            }
+            final Locale locale = constructLegacyLocale(elements);
             sLocaleCache.put(localeString, locale);
             return locale;
         }
+    }
+
+
+    @SuppressWarnings("deprecation")
+    private static Locale constructLegacyLocale(final String[] elements) {
+        // Preserve the existing ll_cc_variant interpretation, including legacy variants that
+        // Locale.Builder would reject or reinterpret as a BCP-47 script subtag.
+        if (elements.length == 1) {
+            return new Locale(elements[0] /* language */);
+        }
+        if (elements.length == 2) {
+            return new Locale(elements[0] /* language */, elements[1] /* country */);
+        }
+        return new Locale(elements[0] /* language */, elements[1] /* country */,
+                elements[2] /* variant */);
     }
 
     /**

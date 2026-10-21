@@ -708,7 +708,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
 
     public void switchToNextSubtype() {
         final IBinder token = getWindow().getWindow().getAttributes().token;
-        mRichImm.switchToNextInputMethod(token, !shouldSwitchToOtherInputMethods(token));
+        mRichImm.switchToNextInputMethod(this, token, !shouldSwitchToOtherInputMethods(token));
     }
 
     // TODO: Instead of checking for alphabetic keyboard here, separate keycodes for
@@ -889,7 +889,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
         if (!mSettings.getCurrent().mImeSwitchEnabled) {
             return false;
         }
-        return mRichImm.shouldOfferSwitchingToOtherInputMethods(token);
+        return mRichImm.shouldOfferSwitchingToOtherInputMethods(this, token);
     }
 
     public boolean shouldShowLanguageSwitchKey() {
@@ -907,7 +907,9 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
         return shouldSwitchToOtherInputMethods(token);
     }
 
+    @SuppressWarnings("deprecation")
     private void setNavigationBarColor() {
+        // Keep the legacy call for releases where an IME window can directly color its navigation bar.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             final Window window = getWindow().getWindow();
             if (window == null) {

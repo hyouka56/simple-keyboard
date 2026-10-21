@@ -22,6 +22,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
+import android.os.Build;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.util.Log;
 
@@ -68,17 +69,26 @@ public final class ApplicationUtils {
      * A utility method to get the application's PackageInfo.versionCode
      * @return the application's PackageInfo.versionCode
      */
-    public static int getVersionCode(final Context context) {
+    public static long getVersionCode(final Context context) {
         try {
             if (context == null) {
                 return 0;
             }
             final String packageName = context.getPackageName();
             final PackageInfo info = context.getPackageManager().getPackageInfo(packageName, 0);
-            return info.versionCode;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                return info.getLongVersionCode();
+            }
+            return getLegacyVersionCode(info);
         } catch (final NameNotFoundException e) {
             Log.e(TAG, "Could not find version info.", e);
         }
         return 0;
+    }
+
+    @SuppressWarnings("deprecation")
+    private static long getLegacyVersionCode(final PackageInfo info) {
+        // PackageInfo.getLongVersionCode() is unavailable before Android 9 (API 28).
+        return info.versionCode;
     }
 }

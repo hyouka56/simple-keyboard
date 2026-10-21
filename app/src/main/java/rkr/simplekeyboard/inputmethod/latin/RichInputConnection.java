@@ -396,15 +396,6 @@ public final class RichInputConnection {
                     mExpectedSelEnd = mExpectedSelStart;
                 }
                 break;
-            case KeyEvent.KEYCODE_UNKNOWN:
-                if (null != keyEvent.getCharacters()) {
-                    mTextBeforeCursor += keyEvent.getCharacters();
-                    if (hasCursorPosition()) {
-                        mExpectedSelStart += keyEvent.getCharacters().length();
-                        mExpectedSelEnd = mExpectedSelStart;
-                    }
-                }
-                break;
             case KeyEvent.KEYCODE_DEL:
                 break;
             default:

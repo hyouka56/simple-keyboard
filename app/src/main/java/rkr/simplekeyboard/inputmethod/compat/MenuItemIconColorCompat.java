@@ -18,6 +18,7 @@ package rkr.simplekeyboard.inputmethod.compat;
 
 import android.app.ActionBar;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.view.MenuItem;
 import android.view.View;
@@ -51,7 +52,7 @@ public class MenuItemIconColorCompat {
             Drawable drawable = menuItem.getIcon();
             if (drawable != null) {
                 drawable.mutate();
-                drawable.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+                drawable.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP));
             }
         }
     }
