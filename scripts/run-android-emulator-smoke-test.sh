@@ -10,7 +10,7 @@ EMULATOR="$ANDROID_HOME/emulator/emulator"
 ADB="${ANDROID_HOME}/platform-tools/adb"
 mkdir -p test-results
 
-for tool in "$SDKMANAGER" "$AVDMANAGER" "$EMULATOR" "$ADB"; do
+for tool in "$SDKMANAGER" "$AVDMANAGER" "$ADB"; do
   if [[ ! -x "$tool" ]]; then
     echo "Required Android SDK tool not executable: $tool" >&2
     exit 1
@@ -21,6 +21,11 @@ done
 # them with the app's assertions. On failure, the relevant logs are printed below.
 if ! "$SDKMANAGER" --install emulator "$SYSTEM_IMAGE" \
     > test-results/sdkmanager-install.log 2>&1; then
+  cat test-results/sdkmanager-install.log >&2
+  exit 1
+fi
+if [[ ! -x "$EMULATOR" ]]; then
+  echo "Emulator SDK installation reported success, but the executable is still missing: $EMULATOR" >&2
   cat test-results/sdkmanager-install.log >&2
   exit 1
 fi
