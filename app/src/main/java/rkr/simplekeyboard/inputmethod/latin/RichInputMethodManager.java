@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.Executors;
 
 import rkr.simplekeyboard.inputmethod.R;
 import rkr.simplekeyboard.inputmethod.compat.PreferenceManagerCompat;
@@ -747,7 +748,28 @@ public class RichInputMethodManager {
      */
     private void switchToTargetIme(final String imiId, final InputMethodSubtype subtype,
                                    final InputMethodService context) {
-        // InputMethodService owns this operation; the InputMethodManager equivalent is deprecated.
-        context.switchInputMethod(imiId, subtype);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            // This overload was added in API 28. Use the service-owned API on supported releases.
+            context.switchInputMethod(imiId, subtype);
+        } else {
+            // Preserve subtype switching for the app's minimum supported Android API (24-27).
+            switchToTargetImeLegacy(imiId, subtype, context);
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    private void switchToTargetImeLegacy(final String imiId, final InputMethodSubtype subtype,
+                                         final InputMethodService context) {
+        final IBinder token = context.getWindow().getWindow().getAttributes().token;
+        if (token == null) {
+            return;
+        }
+        final InputMethodManager imm = mImmService;
+        Executors.newSingleThreadExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                imm.setInputMethodAndSubtype(token, imiId, subtype);
+            }
+        });
     }
 }
