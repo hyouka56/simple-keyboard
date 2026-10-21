@@ -868,9 +868,6 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
         }
     };
 
-    public void launchSettings() {
-        // This keyboard-only build intentionally has no in-app settings screen.
-    }
 
     @Override
     protected void dump(final FileDescriptor fd, final PrintWriter fout, final String[] args) {

@@ -197,9 +197,6 @@ public final class InputLogic {
                 // Note: Calling back to the keyboard on symbol key is handled in
                 // {@link #onPressKey(int,int,boolean)} and {@link #onReleaseKey(int,boolean)}.
                 break;
-            case Constants.CODE_SETTINGS:
-                onSettingsKeyPressed();
-                break;
             case Constants.CODE_PASTE:
                 mConnection.pasteClipboard();
                 break;
@@ -476,13 +473,6 @@ public final class InputLogic {
             return text.substring(1);
         }
         return text;
-    }
-
-    /**
-     * Handle a press on the settings key.
-     */
-    private void onSettingsKeyPressed() {
-        mLatinIME.launchSettings();
     }
 
     /**

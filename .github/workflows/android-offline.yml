@@ -72,12 +72,42 @@ jobs:
           common_key_styles = Path('app/src/main/res/xml/key_styles_common.xml').read_text()
           assert 'latin:styleName="deleteKeyStyle"' in common_key_styles and 'latin:keySpec="!icon/delete_key|!code/key_delete"' in common_key_styles, 'Delete key must remain available'
 
-          settings_xml = Path('app/src/main/res/xml/prefs.xml').read_text()
-          assert 'android:key="privacy_policy"' not in settings_xml, 'Privacy Policy entry must stay removed'
-          assert 'android:key="license"' not in settings_xml, 'License entry must stay removed'
-          settings_fragment = Path('app/src/main/java/rkr/simplekeyboard/inputmethod/latin/settings/SettingsFragment.java').read_text()
-          assert 'Intent.ACTION_VIEW' not in settings_fragment and 'openUrl(' not in settings_fragment, 'Settings must not open external URLs'
-          assert 'privacy_policy_url' not in settings_fragment and 'license_url' not in settings_fragment, 'External link handlers must stay removed'
+          removed_settings_ui = [
+              'app/src/main/java/rkr/simplekeyboard/inputmethod/latin/settings/AppearanceSettingsFragment.java',
+              'app/src/main/java/rkr/simplekeyboard/inputmethod/latin/settings/ColorDialogPreference.java',
+              'app/src/main/java/rkr/simplekeyboard/inputmethod/latin/settings/InputMethodSettingsFragment.java',
+              'app/src/main/java/rkr/simplekeyboard/inputmethod/latin/settings/InputMethodSettingsImpl.java',
+              'app/src/main/java/rkr/simplekeyboard/inputmethod/latin/settings/KeyPressSettingsFragment.java',
+              'app/src/main/java/rkr/simplekeyboard/inputmethod/latin/settings/LanguagesSettingsFragment.java',
+              'app/src/main/java/rkr/simplekeyboard/inputmethod/latin/settings/PreferencesSettingsFragment.java',
+              'app/src/main/java/rkr/simplekeyboard/inputmethod/latin/settings/RadioButtonPreference.java',
+              'app/src/main/java/rkr/simplekeyboard/inputmethod/latin/settings/SeekBarDialogPreference.java',
+              'app/src/main/java/rkr/simplekeyboard/inputmethod/latin/settings/SettingsActivity.java',
+              'app/src/main/java/rkr/simplekeyboard/inputmethod/latin/settings/SettingsFragment.java',
+              'app/src/main/java/rkr/simplekeyboard/inputmethod/latin/settings/SingleLanguageSettingsFragment.java',
+              'app/src/main/java/rkr/simplekeyboard/inputmethod/latin/settings/SubScreenFragment.java',
+              'app/src/main/java/rkr/simplekeyboard/inputmethod/latin/settings/ThemeSettingsFragment.java',
+              'app/src/main/java/rkr/simplekeyboard/inputmethod/latin/utils/FragmentUtils.java',
+              'app/src/main/res/xml/prefs.xml',
+              'app/src/main/res/xml/prefs_screen_appearance.xml',
+              'app/src/main/res/xml/prefs_screen_key_press.xml',
+              'app/src/main/res/xml/prefs_screen_preferences.xml',
+              'app/src/main/res/xml/prefs_screen_theme.xml',
+              'app/src/main/res/xml/empty_settings.xml',
+          ]
+          assert all(not Path(path).exists() for path in removed_settings_ui), 'Standalone settings UI source/resources must stay removed'
+          keyboard_codes = Path('app/src/main/java/rkr/simplekeyboard/inputmethod/keyboard/internal/KeyboardCodesSet.java').read_text()
+          assert 'key_settings' not in keyboard_codes and 'CODE_SETTINGS' not in keyboard_codes, 'Settings key code must be removed'
+          for key_resource in [
+              'app/src/main/res/xml/key_styles_common.xml',
+              'app/src/main/res/xml-sw600dp/key_styles_common.xml',
+              'app/src/main/res/xml/row_pcqwerty5.xml',
+              'app/src/main/res/xml-sw600dp/row_pcqwerty5.xml',
+              'app/src/main/res/xml/row_hcesar4.xml',
+          ]:
+              content = Path(key_resource).read_text()
+              assert 'settingsKeyStyle' not in content and '!code/key_settings' not in content and '!icon/settings_key' not in content, f'{key_resource}: settings gear must stay removed'
+          assert not Path('app/src/main/res/drawable/sym_keyboard_settings.xml').exists(), 'Settings gear drawable must stay removed'
           appname_strings = Path('app/src/main/res/values/strings-appname.xml').read_text()
           assert 'privacy_policy_url' not in appname_strings and 'license_url' not in appname_strings, 'External URL resources must stay removed'
           for strings_file in Path('app/src/main/res').glob('values*/strings.xml'):
@@ -204,7 +234,7 @@ jobs:
           emulator-boot-timeout: 1200
           script: bash scripts/keyboard-smoke-test.sh
 
-      - name: Upload settings smoke-test logs
+      - name: Upload keyboard smoke-test logs
         if: always()
         uses: actions/upload-artifact@v7
         with:

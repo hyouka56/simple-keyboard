@@ -26,15 +26,6 @@
     >
         <switch>
             <case
-                latin:clobberSettingsKey="false"
-                >
-                <Key
-                    latin:keyStyle="settingsKeyStyle"
-                    latin:keyWidth="11.538%p" />
-            </case>
-        </switch>
-        <switch>
-            <case
                 latin:languageSwitchKeyEnabled="true"
             >
                 <Spacer
@@ -44,14 +35,14 @@
                     latin:keyWidth="9.0%p" />
                 <Key
                     latin:keyStyle="spaceKeyStyle"
-                    latin:keyWidth="40.0%p" />
+                    latin:keyWidth="51.538%p" />
             </case>
             <default>
                 <Spacer
                     latin:keyWidth="20%p" />
                 <Key
                     latin:keyStyle="spaceKeyStyle"
-                    latin:keyWidth="42.0%p" />
+                    latin:keyWidth="53.538%p" />
             </default>
         </switch>
         <Spacer

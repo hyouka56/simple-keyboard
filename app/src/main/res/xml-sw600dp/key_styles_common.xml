@@ -35,8 +35,6 @@
                 latin:keyLabelFlags="hasShiftedLetterHint" />
         </default>
     </switch>
-    <include
-        latin:keyboardLayout="@xml/key_styles_settings" />
     <!-- Functional key styles -->
     <!-- Base style for shift key. A single space is used for dummy label in moreKeys. -->
     <key-style
@@ -97,11 +95,6 @@
         latin:keySpec="!icon/language_switch_key|!code/key_language_switch"
         latin:keyActionFlags="noKeyPreview|altCodeWhileTyping|enableLongPress"
         latin:altCode="!code/key_space" />
-    <key-style
-        latin:styleName="settingsKeyStyle"
-        latin:keySpec="!icon/settings_key|!code/key_settings"
-        latin:keyActionFlags="noKeyPreview"
-        latin:backgroundType="functional" />
     <key-style
         latin:styleName="pasteKeyStyle"
         latin:keySpec="!icon/paste_key|!code/key_paste"
