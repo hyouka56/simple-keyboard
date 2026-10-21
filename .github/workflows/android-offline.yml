@@ -60,7 +60,7 @@ jobs:
           assert application is not None, 'Application element is missing'
           ime_service = next((component for component in application.findall('service') if component.attrib.get(android_ns + 'name') == '.latin.LatinIME'), None)
           assert ime_service is not None, 'Keyboard input-method service must remain declared'
-          assert ime_service.attrib.get(android_ns + 'exported') == 'false', 'Keep the verified keyboard service visibility setting so Android registers the IME'
+          assert ime_service.attrib.get(android_ns + 'exported') == 'true', 'Input-method service must be exported for Android to discover and bind the IME'
           assert ime_service.attrib.get(android_ns + 'permission') == 'android.permission.BIND_INPUT_METHOD', 'Input-method service must remain protected by BIND_INPUT_METHOD'
           assert not any('SettingsActivity' in component.attrib.get(android_ns + 'name', '') for component in application.findall('activity')), 'Settings Activity must stay removed'
           for component in application:
