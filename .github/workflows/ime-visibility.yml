@@ -1,0 +1,74 @@
+name: IME keyboard visibility runtime test
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  keyboard-visibility:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Set up Java
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: '9.6.0'
+          cache-provider: basic
+
+      - name: Install Android SDK packages required by the app
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then
+            SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -path '*/bin/sdkmanager' -type f | head -n 1)"
+          fi
+          test -x "$SDKMANAGER"
+          LICENSE_ACCEPTANCES="$(printf 'y\n%.0s' {1..100})"
+          "$SDKMANAGER" --licenses <<< "$LICENSE_ACCEPTANCES" >/dev/null
+          "$SDKMANAGER" "platforms;android-36" "build-tools;36.0.0" "ndk;28.2.13676358" "cmake;3.22.1"
+
+      - name: Verify KVM acceleration is available
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -r /dev/kvm && test -w /dev/kvm
+          echo "KVM device is accessible to the runner."
+
+      - name: Test real IME visibility on Android 12
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 31
+          target: google_apis
+          arch: x86_64
+          profile: pixel_2
+          disable-animations: true
+          disable-linux-hw-accel: false
+          emulator-boot-timeout: 1200
+          script: bash scripts/keyboard-visibility-smoke-test.sh
+
+      - name: Upload IME visibility diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: keyboard-ime-visibility-diagnostics
+          path: |
+            test-results/
+            app/build/reports/androidTests/connected/debug/
+            app/build/outputs/androidTest-results/connected/debug/
+          if-no-files-found: ignore

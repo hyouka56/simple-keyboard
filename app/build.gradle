@@ -1,5 +1,12 @@
 apply plugin: 'com.android.application'
 
+// Production APKs stay ARM64-only. CI can select x86_64 solely to run the IME
+// visibility test on the hosted Android emulator.
+def keyboardAbi = (project.findProperty('keyboardAbi') ?: 'arm64-v8a').toString()
+if (!(keyboardAbi in ['arm64-v8a', 'x86_64'])) {
+    throw new GradleException("Unsupported keyboardAbi: " + keyboardAbi)
+}
+
 android {
     namespace = 'rkr.simplekeyboard.inputmethod'
     compileSdk = 36
@@ -10,10 +17,11 @@ android {
         targetSdk = 36
         versionCode = 148
         versionName = '6.7'
+        testInstrumentationRunner = 'android.test.InstrumentationTestRunner'
 
         // Package native code for ARM64 devices only.
         ndk {
-            abiFilters 'arm64-v8a'
+            abiFilters keyboardAbi
         }
     }
 
