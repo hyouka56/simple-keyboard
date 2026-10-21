@@ -10,7 +10,7 @@ EMULATOR="$ANDROID_HOME/emulator/emulator"
 ADB="${ANDROID_HOME}/platform-tools/adb"
 mkdir -p test-results
 
-for tool in "$SDKMANAGER" "$AVDMANAGER" "$ADB"; do
+for tool in "$SDKMANAGER" "$AVDMANAGER" "$EMULATOR" "$ADB"; do
   if [[ ! -x "$tool" ]]; then
     echo "Required Android SDK tool not executable: $tool" >&2
     exit 1
@@ -24,19 +24,24 @@ if ! "$SDKMANAGER" --install emulator "$SYSTEM_IMAGE" \
   cat test-results/sdkmanager-install.log >&2
   exit 1
 fi
-if [[ ! -x "$EMULATOR" ]]; then
-  echo "Emulator SDK installation reported success, but the executable is still missing: $EMULATOR" >&2
-  cat test-results/sdkmanager-install.log >&2
-  exit 1
-fi
 
+export ANDROID_AVD_HOME="${ANDROID_AVD_HOME:-$HOME/.android/avd}"
+mkdir -p "$ANDROID_AVD_HOME"
 printf 'no\n' | "$AVDMANAGER" create avd --force -n "$AVD_NAME" \
   --package "$SYSTEM_IMAGE" --device pixel_2 \
   > test-results/avd-create.log 2>&1 || {
     cat test-results/avd-create.log >&2
     exit 1
   }
-AVD_CONFIG="$HOME/.android/avd/${AVD_NAME}.avd/config.ini"
+AVD_CONFIG="$ANDROID_AVD_HOME/${AVD_NAME}.avd/config.ini"
+if [[ ! -f "$AVD_CONFIG" ]]; then
+  find "$ANDROID_AVD_HOME" -maxdepth 4 -type f -print \
+    > test-results/avd-created-files.txt 2>&1 || true
+  echo "avdmanager did not create expected config file: $AVD_CONFIG" >&2
+  cat test-results/avd-create.log >&2
+  cat test-results/avd-created-files.txt >&2 || true
+  exit 1
+fi
 printf 'hw.cpu.ncore=2\n' >> "$AVD_CONFIG"
 
 "$ADB" start-server > test-results/adb-server-start.log 2>&1
