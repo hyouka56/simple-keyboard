@@ -30,6 +30,10 @@ if ! grep -Fq "$IME_COMPONENT" "$RESULTS/ime-visibility-ime-list.txt"; then
   cat "$RESULTS/ime-visibility-ime-list.txt" >&2
   exit 1
 fi
+# Android emulator images report a physical keyboard by default. On Android 12
+# the IME service respects that signal and can hide the software keyboard unless
+# the system is explicitly configured to show it, unlike a normal phone.
+timeout 30s adb shell settings put secure show_ime_with_hard_keyboard 1
 timeout 30s adb shell ime enable "$IME_COMPONENT" 2>&1 \
   | tee "$RESULTS/ime-visibility-enable.log"
 timeout 30s adb shell ime set "$IME_COMPONENT" 2>&1 \
