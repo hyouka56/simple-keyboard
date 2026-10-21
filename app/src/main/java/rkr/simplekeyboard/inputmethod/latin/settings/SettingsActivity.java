@@ -37,6 +37,7 @@ import android.view.inputmethod.InputMethodManager;
 import rkr.simplekeyboard.inputmethod.R;
 import rkr.simplekeyboard.inputmethod.latin.utils.FragmentUtils;
 
+@SuppressWarnings("deprecation")
 public class SettingsActivity extends PreferenceActivity {
     private static final String DEFAULT_FRAGMENT = SettingsFragment.class.getName();
     private static final String TAG = SettingsActivity.class.getSimpleName();

@@ -53,6 +53,7 @@ import static rkr.simplekeyboard.inputmethod.latin.settings.SingleLanguageSettin
 /**
  * "Languages" settings sub screen.
  */
+@SuppressWarnings("deprecation")
 public final class LanguagesSettingsFragment extends PreferenceFragment {
     private static final String TAG = LanguagesSettingsFragment.class.getSimpleName();
 

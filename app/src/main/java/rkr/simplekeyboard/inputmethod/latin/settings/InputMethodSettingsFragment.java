@@ -28,6 +28,7 @@ import rkr.simplekeyboard.inputmethod.compat.PreferenceManagerCompat;
  * This is a helper class for an IME's settings preference fragment. It's recommended for every
  * IME to have its own settings preference fragment which inherits this class.
  */
+@SuppressWarnings("deprecation")
 public abstract class InputMethodSettingsFragment extends PreferenceFragment {
     private final InputMethodSettingsImpl mSettings = new InputMethodSettingsImpl();
     @Override

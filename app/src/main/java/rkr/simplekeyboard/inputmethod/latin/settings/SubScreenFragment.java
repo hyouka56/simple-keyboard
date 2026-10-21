@@ -36,6 +36,7 @@ import rkr.simplekeyboard.inputmethod.compat.PreferenceManagerCompat;
  * A base abstract class for a {@link PreferenceFragment} that implements a nested
  * {@link PreferenceScreen} of the main preference screen.
  */
+@SuppressWarnings("deprecation")
 public abstract class SubScreenFragment extends PreferenceFragment
         implements OnSharedPreferenceChangeListener {
     private OnSharedPreferenceChangeListener mSharedPreferenceChangeListener;

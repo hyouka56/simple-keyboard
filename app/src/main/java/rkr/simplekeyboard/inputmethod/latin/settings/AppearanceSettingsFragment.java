@@ -29,6 +29,7 @@ import rkr.simplekeyboard.inputmethod.keyboard.KeyboardTheme;
 /**
  * "Appearance" settings sub screen.
  */
+@SuppressWarnings("deprecation")
 public final class AppearanceSettingsFragment extends SubScreenFragment {
     @Override
     public void onCreate(final Bundle icicle) {

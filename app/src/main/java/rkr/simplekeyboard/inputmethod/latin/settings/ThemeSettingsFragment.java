@@ -30,6 +30,7 @@ import rkr.simplekeyboard.inputmethod.latin.settings.RadioButtonPreference.OnRad
 /**
  * "Keyboard theme" settings sub screen.
  */
+@SuppressWarnings("deprecation")
 public final class ThemeSettingsFragment extends SubScreenFragment
         implements OnRadioButtonClickedListener {
     private int mSelectedThemeId;

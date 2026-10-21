@@ -32,6 +32,7 @@ import rkr.simplekeyboard.inputmethod.compat.PreferenceManagerCompat;
 import rkr.simplekeyboard.inputmethod.latin.Subtype;
 import rkr.simplekeyboard.inputmethod.latin.RichInputMethodManager;
 
+@SuppressWarnings("deprecation")
 /* package private */ class InputMethodSettingsImpl {
     private Preference mSubtypeEnablerPreference;
     private RichInputMethodManager mRichImm;

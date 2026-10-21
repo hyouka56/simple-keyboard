@@ -39,6 +39,7 @@ import rkr.simplekeyboard.inputmethod.latin.utils.SubtypeLocaleUtils;
 /**
  * Settings sub screen for a specific language.
  */
+@SuppressWarnings("deprecation")
 public final class SingleLanguageSettingsFragment extends PreferenceFragment {
 
     public static final String LOCALE_BUNDLE_KEY = "LOCALE";

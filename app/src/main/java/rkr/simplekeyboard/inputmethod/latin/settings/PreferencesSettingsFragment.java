@@ -38,6 +38,7 @@ import rkr.simplekeyboard.inputmethod.keyboard.KeyboardLayoutSet;
  * - Space swipe cursor move
  * - Delete swipe
  */
+@SuppressWarnings("deprecation")
 public final class PreferencesSettingsFragment extends SubScreenFragment {
     @Override
     public void onCreate(final Bundle icicle) {

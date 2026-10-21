@@ -29,6 +29,7 @@ import android.widget.TextView;
 
 import rkr.simplekeyboard.inputmethod.R;
 
+@SuppressWarnings("deprecation")
 public final class SeekBarDialogPreference extends DialogPreference
         implements SeekBar.OnSeekBarChangeListener {
     public interface ValueProxy {

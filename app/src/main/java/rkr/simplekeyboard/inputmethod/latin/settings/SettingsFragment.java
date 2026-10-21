@@ -25,6 +25,7 @@ import android.preference.PreferenceScreen;
 import rkr.simplekeyboard.inputmethod.R;
 import rkr.simplekeyboard.inputmethod.latin.utils.ApplicationUtils;
 
+@SuppressWarnings("deprecation")
 public final class SettingsFragment extends InputMethodSettingsFragment {
     @Override
     public void onCreate(final Bundle icicle) {

@@ -28,6 +28,7 @@ import rkr.simplekeyboard.inputmethod.R;
 /**
  * Radio Button preference
  */
+@SuppressWarnings("deprecation")
 public class RadioButtonPreference extends Preference {
     interface OnRadioButtonClickedListener {
         /**

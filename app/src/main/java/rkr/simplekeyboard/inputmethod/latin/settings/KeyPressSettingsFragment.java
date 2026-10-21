@@ -25,6 +25,7 @@ import android.os.Bundle;
 import rkr.simplekeyboard.inputmethod.R;
 
 /** Locked key-press settings; language switching remains available on the preferences screen. */
+@SuppressWarnings("deprecation")
 public final class KeyPressSettingsFragment extends SubScreenFragment {
     @Override
     public void onCreate(final Bundle icicle) {
