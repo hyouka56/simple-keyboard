@@ -50,13 +50,19 @@ jobs:
             "system-images;android-31;google_apis;x86_64" \
             "ndk;28.2.13676358" \
             "cmake;3.22.1"
+          # setup-java and sdkmanager do not guarantee adb is on subsequent
+          # GitHub Actions step PATHs. Export both SDK executables explicitly.
+          echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
+          echo "$ANDROID_HOME/emulator" >> "$GITHUB_PATH"
 
       - name: Verify KVM acceleration is available
         shell: bash
         run: |
           set -euo pipefail
           test -r /dev/kvm && test -w /dev/kvm
-          echo "KVM device is accessible to the runner."
+          command -v adb
+          command -v emulator
+          echo "KVM device and Android tools are accessible to the runner."
 
       - name: Create and start Android 12 emulator with finite timeouts
         shell: bash
