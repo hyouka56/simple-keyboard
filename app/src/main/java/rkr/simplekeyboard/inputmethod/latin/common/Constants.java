@@ -95,6 +95,7 @@ public final class Constants {
     public static final int CODE_SWITCH_ALPHA_SYMBOL = -3;
     public static final int CODE_OUTPUT_TEXT = -4;
     public static final int CODE_DELETE = -5;
+    public static final int CODE_SETTINGS = -6;
     public static final int CODE_PASTE = -7;
     public static final int CODE_ACTION_NEXT = -8;
     public static final int CODE_ACTION_PREVIOUS = -9;
@@ -115,6 +116,7 @@ public final class Constants {
         case CODE_SWITCH_ALPHA_SYMBOL: return "symbol";
         case CODE_OUTPUT_TEXT: return "text";
         case CODE_DELETE: return "delete";
+        case CODE_SETTINGS: return "settings";
         case CODE_PASTE: return "paste";
         case CODE_ACTION_NEXT: return "actionNext";
         case CODE_ACTION_PREVIOUS: return "actionPrevious";
