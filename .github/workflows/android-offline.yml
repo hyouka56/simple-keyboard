@@ -14,6 +14,9 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
+      - name: Set Git default branch name
+        run: git config --global init.defaultBranch master
+
       - name: Check out source
         uses: actions/checkout@v7
 
@@ -33,9 +36,8 @@ jobs:
             SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -path '*/bin/sdkmanager' -type f | head -n 1)"
           fi
           test -x "$SDKMANAGER"
-          set +o pipefail
-          yes | "$SDKMANAGER" --licenses >/dev/null
-          set -o pipefail
+          LICENSE_ACCEPTANCES="$(printf 'y\n%.0s' {1..100})"
+          "$SDKMANAGER" --licenses <<< "$LICENSE_ACCEPTANCES" >/dev/null
           "$SDKMANAGER" "platforms;android-36" "build-tools;36.0.0"
 
       - name: Verify source privacy and language constraints
@@ -226,7 +228,11 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: pixel_2
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
+          pre-emulator-launch-script: |
+            mkdir -p "$HOME/.android"
+            : > "$HOME/.android/emu-update-last-check.ini"
+            adb start-server
           disable-animations: true
           disable-linux-hw-accel: false
           emulator-boot-timeout: 1200
