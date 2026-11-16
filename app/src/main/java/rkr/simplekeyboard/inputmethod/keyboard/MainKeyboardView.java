@@ -26,10 +26,13 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.graphics.Paint.Align;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.os.SystemClock;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -60,6 +63,11 @@ import rkr.simplekeyboard.inputmethod.latin.utils.TypefaceUtils;
  */
 public final class MainKeyboardView extends KeyboardView implements MoreKeysPanel.Controller, DrawingProxy {
     private static final String TAG = MainKeyboardView.class.getSimpleName();
+
+    // Android TV keyboards are navigated with a D-pad rather than a touchscreen.
+    private final boolean mIsTelevision;
+    private final Paint mRemoteFocusPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private Key mRemoteSelectedKey;
 
     /** Listener for {@link KeyboardActionListener}. */
     private KeyboardActionListener mKeyboardActionListener;
@@ -109,6 +117,16 @@ public final class MainKeyboardView extends KeyboardView implements MoreKeysPane
 
     public MainKeyboardView(final Context context, final AttributeSet attrs, final int defStyle) {
         super(context, attrs, defStyle);
+
+        final PackageManager packageManager = context.getPackageManager();
+        mIsTelevision = packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK)
+                || !packageManager.hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN);
+        setFocusable(mIsTelevision);
+        setFocusableInTouchMode(mIsTelevision);
+        mRemoteFocusPaint.setColor(Color.WHITE);
+        mRemoteFocusPaint.setStyle(Paint.Style.STROKE);
+        mRemoteFocusPaint.setStrokeWidth(
+                getResources().getDisplayMetrics().density * 3.0f);
 
         final DrawingPreviewPlacerView drawingPreviewPlacerView =
                 new DrawingPreviewPlacerView(context, attrs);
@@ -260,6 +278,175 @@ public final class MainKeyboardView extends KeyboardView implements MoreKeysPane
         mSpaceKey = keyboard.getKey(Constants.CODE_SPACE);
         final int keyHeight = keyboard.mMostCommonKeyHeight;
         mLanguageOnSpacebarTextSize = keyHeight * mLanguageOnSpacebarTextRatio;
+
+        if (mIsTelevision) {
+            if (mRemoteSelectedKey == null || !keyboard.getSortedKeys().contains(
+                    mRemoteSelectedKey) || mRemoteSelectedKey.isSpacer()) {
+                mRemoteSelectedKey = findFirstRemoteKey(keyboard);
+            }
+            requestFocus();
+            invalidate();
+        }
+    }
+
+    private Key findFirstRemoteKey(final Keyboard keyboard) {
+        Key firstKey = null;
+        for (final Key key : keyboard.getSortedKeys()) {
+            if (key.isSpacer()) {
+                continue;
+            }
+            if (firstKey == null || key.getY() < firstKey.getY()
+                    || (key.getY() == firstKey.getY() && key.getX() < firstKey.getX())) {
+                firstKey = key;
+            }
+        }
+        return firstKey;
+    }
+
+    private void moveRemoteSelection(final int direction) {
+        final Keyboard keyboard = getKeyboard();
+        if (keyboard == null) {
+            return;
+        }
+        if (mRemoteSelectedKey == null
+                || !keyboard.getSortedKeys().contains(mRemoteSelectedKey)) {
+            mRemoteSelectedKey = findFirstRemoteKey(keyboard);
+            invalidate();
+            return;
+        }
+
+        final float currentX = mRemoteSelectedKey.getX() + mRemoteSelectedKey.getWidth() / 2.0f;
+        final float currentY = mRemoteSelectedKey.getY() + mRemoteSelectedKey.getHeight() / 2.0f;
+        Key bestKey = null;
+        float bestScore = Float.MAX_VALUE;
+
+        for (final Key candidate : keyboard.getSortedKeys()) {
+            if (candidate.isSpacer() || candidate == mRemoteSelectedKey) {
+                continue;
+            }
+            final float dx = candidate.getX() + candidate.getWidth() / 2.0f - currentX;
+            final float dy = candidate.getY() + candidate.getHeight() / 2.0f - currentY;
+            final float forward;
+            final float perpendicular;
+            switch (direction) {
+                case KeyEvent.KEYCODE_DPAD_LEFT:
+                    if (dx >= -1.0f) continue;
+                    forward = -dx;
+                    perpendicular = Math.abs(dy);
+                    break;
+                case KeyEvent.KEYCODE_DPAD_RIGHT:
+                    if (dx <= 1.0f) continue;
+                    forward = dx;
+                    perpendicular = Math.abs(dy);
+                    break;
+                case KeyEvent.KEYCODE_DPAD_UP:
+                    if (dy >= -1.0f) continue;
+                    forward = -dy;
+                    perpendicular = Math.abs(dx);
+                    break;
+                case KeyEvent.KEYCODE_DPAD_DOWN:
+                    if (dy <= 1.0f) continue;
+                    forward = dy;
+                    perpendicular = Math.abs(dx);
+                    break;
+                default:
+                    return;
+            }
+
+            final float score = forward + perpendicular * 1.8f;
+            if (score < bestScore) {
+                bestScore = score;
+                bestKey = candidate;
+            }
+        }
+
+        if (bestKey != null) {
+            mRemoteSelectedKey = bestKey;
+            invalidate();
+        }
+    }
+
+    private void pressSelectedRemoteKey() {
+        final Key key = mRemoteSelectedKey;
+        if (key == null || getKeyboard() == null || key.isSpacer()) {
+            return;
+        }
+
+        final float x = key.getX() + getPaddingLeft() + key.getWidth() / 2.0f;
+        final float y = key.getY() + getPaddingTop() + key.getHeight() / 2.0f;
+        final long downTime = SystemClock.uptimeMillis();
+        final MotionEvent down = MotionEvent.obtain(
+                downTime, downTime, MotionEvent.ACTION_DOWN, x, y, 0);
+        try {
+            onTouchEvent(down);
+        } finally {
+            down.recycle();
+        }
+
+        final long upTime = SystemClock.uptimeMillis();
+        final MotionEvent up = MotionEvent.obtain(
+                downTime, upTime, MotionEvent.ACTION_UP, x, y, 0);
+        try {
+            onTouchEvent(up);
+        } finally {
+            up.recycle();
+        }
+    }
+
+    @Override
+    public boolean onKeyDown(final int keyCode, final KeyEvent event) {
+        if (mIsTelevision) {
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_DPAD_LEFT:
+                case KeyEvent.KEYCODE_DPAD_RIGHT:
+                case KeyEvent.KEYCODE_DPAD_UP:
+                case KeyEvent.KEYCODE_DPAD_DOWN:
+                    if (event.getRepeatCount() == 0) {
+                        moveRemoteSelection(keyCode);
+                    }
+                    return true;
+                case KeyEvent.KEYCODE_DPAD_CENTER:
+                case KeyEvent.KEYCODE_ENTER:
+                case KeyEvent.KEYCODE_NUMPAD_ENTER:
+                    if (event.getRepeatCount() == 0) {
+                        pressSelectedRemoteKey();
+                    }
+                    return true;
+                default:
+                    break;
+            }
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyUp(final int keyCode, final KeyEvent event) {
+        if (mIsTelevision && (keyCode == KeyEvent.KEYCODE_DPAD_LEFT
+                || keyCode == KeyEvent.KEYCODE_DPAD_RIGHT
+                || keyCode == KeyEvent.KEYCODE_DPAD_UP
+                || keyCode == KeyEvent.KEYCODE_DPAD_DOWN
+                || keyCode == KeyEvent.KEYCODE_DPAD_CENTER
+                || keyCode == KeyEvent.KEYCODE_ENTER
+                || keyCode == KeyEvent.KEYCODE_NUMPAD_ENTER)) {
+            return true;
+        }
+        return super.onKeyUp(keyCode, event);
+    }
+
+    @Override
+    protected void onDraw(final Canvas canvas) {
+        super.onDraw(canvas);
+        final Key key = mIsTelevision ? mRemoteSelectedKey : null;
+        if (key == null || key.isSpacer()) {
+            return;
+        }
+        final float inset = getResources().getDisplayMetrics().density * 3.0f;
+        final RectF focusBounds = new RectF(
+                key.getX() + getPaddingLeft() + inset,
+                key.getY() + getPaddingTop() + inset,
+                key.getX() + getPaddingLeft() + key.getWidth() - inset,
+                key.getY() + getPaddingTop() + key.getHeight() - inset);
+        canvas.drawRoundRect(focusBounds, inset * 2.0f, inset * 2.0f, mRemoteFocusPaint);
     }
 
     /**
@@ -352,6 +539,9 @@ public final class MainKeyboardView extends KeyboardView implements MoreKeysPane
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         installPreviewPlacerView();
+        if (mIsTelevision) {
+            requestFocus();
+        }
     }
 
     @Override

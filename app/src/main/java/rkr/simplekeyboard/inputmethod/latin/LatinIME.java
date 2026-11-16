@@ -318,6 +318,27 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
         super.onConfigurationChanged(conf);
     }
 
+    // InputMethodService receives hardware keys forwarded by the target application.
+    // Route TV D-pad events to the on-screen keyboard so they work even when the IME
+    // window itself is not the focused application window.
+    @Override
+    public boolean onKeyDown(final int keyCode, final KeyEvent event) {
+        final MainKeyboardView keyboardView = mKeyboardSwitcher.getMainKeyboardView();
+        if (keyboardView != null && keyboardView.onKeyDown(keyCode, event)) {
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyUp(final int keyCode, final KeyEvent event) {
+        final MainKeyboardView keyboardView = mKeyboardSwitcher.getMainKeyboardView();
+        if (keyboardView != null && keyboardView.onKeyUp(keyCode, event)) {
+            return true;
+        }
+        return super.onKeyUp(keyCode, event);
+    }
+
     @Override
     public View onCreateInputView() {
         return mKeyboardSwitcher.onCreateInputView();

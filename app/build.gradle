@@ -8,8 +8,8 @@ android {
         applicationId = 'com.hyouka56.blackofflinekeyboard'
         minSdk = 24
         targetSdk = 34
-        versionCode = 149
-        versionName = '6.7-tv14'
+        versionCode = 150
+        versionName = '6.8-tv14'
     }
 
     buildTypes {
